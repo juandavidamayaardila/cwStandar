@@ -1,9 +1,9 @@
 # cwStandar
 Reto Sofka
 /**
-* La cadena de conexión se encuentra en el archivo webConfig
-* Se uso SQL-SERVER como base de datos
+* La cadena de conexión se encuentra en el archivo webConfig.
+* Se uso SQL-SERVER como base de datos.
 * Se adjunta script para crear la base de datos (incluye datos).
-* Se desarrolló en visual studio 2019
+* Se desarrolló en visual studio 2019.
 *
 */
