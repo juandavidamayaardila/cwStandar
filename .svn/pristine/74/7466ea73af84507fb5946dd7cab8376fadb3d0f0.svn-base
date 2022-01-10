@@ -1,0 +1,88 @@
+﻿<%@ Control Language="VB" AutoEventWireup="false" CodeFile="FiltrosUsuariosProducto.ascx.vb" Inherits="Filtros_FiltrosUsuariosProducto" %>
+
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<%--<div class=" table-responsive">--%>
+<table style="margin: auto;">
+    <tr>
+        <td>
+            <asp:Label ID="lblFechaIni" runat="server" Text="Fecha inicial"></asp:Label>
+        </td>
+        <td>
+            <asp:Label ID="lblFechaFin" runat="server" Text="Fecha final"></asp:Label>
+        </td>
+        <td>
+            <asp:Label ID="lblGerReg" runat="server" Text="Gerente regional"></asp:Label>
+        </td>
+        <td>
+            <asp:Label ID="lblJefeV" runat="server" Text="Jefe de ventas"></asp:Label>
+        </td>
+        <td>
+            <asp:Label ID="lblVendedor" runat="server" Text="Vendedor"></asp:Label>
+        </td>
+        <td>
+            <asp:Label ID="lblProducto" runat="server" Text="Producto"></asp:Label>
+        </td>
+        <td>
+            <asp:Label ID="lblTipoVenta" runat="server" Text="Tipo de venta"></asp:Label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="text" class="form-control datetime" id="txtFechaInicial" runat="server" style="width: 95px; text-align: center;" readonly>
+        </td>
+        <td>
+            <input type="text" class="form-control datetime" id="txtFechaFinal" runat="server" style="width: 95px; text-align: center;" readonly>
+        </td>
+        <td>
+            <asp:DropDownList ID="ddlgerenteRegional" runat="server" CssClass='form-control' Width="160px" AutoPostBack="True" DataSourceID="dsgerenteRegional"
+                DataTextField="gerenteRegional" DataValueField="id">
+            </asp:DropDownList>
+            <asp:SqlDataSource ID="dsgerenteRegional" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                SelectCommand="GerenteRegionalDdlSelProc" SelectCommandType="StoredProcedure">
+                <SelectParameters>
+                    <asp:Parameter Name="tipoUsuario" Type="String" />
+                    <asp:Parameter Name="codUsuario" Type="String" />
+                </SelectParameters>
+            </asp:SqlDataSource>
+        </td>
+        <td>
+            <asp:DropDownList ID='ddlJefeVentas' runat='server' CssClass='form-control' Width="160px" DataSourceID="dsJefeVentas"
+                DataTextField="nombre" DataValueField="id" AutoPostBack="True">
+            </asp:DropDownList>
+            <asp:SqlDataSource ID="dsJefeVentas" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                SelectCommand="JefeVentasDdlSelProc" SelectCommandType="StoredProcedure">
+                <SelectParameters>
+                    <asp:Parameter Name="tipoUsuario" Type="String" />
+                    <asp:Parameter Name="codUsuario" Type="String" />
+                    <asp:ControlParameter ControlID="ddlgerenteRegional" Name="gerenteRegional" PropertyName="SelectedValue" Type="String" />
+                </SelectParameters>
+            </asp:SqlDataSource>
+        </td>
+        <td>
+            <asp:DropDownList ID="ddlVendedores" runat="server" CssClass='form-control' Width="160px" DataSourceID="dsVendedores" DataTextField="nombre" DataValueField="codigo">
+            </asp:DropDownList>
+            <asp:SqlDataSource ID="dsVendedores" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="VendedoresDdlSelProc" SelectCommandType="StoredProcedure">
+                <SelectParameters>
+                    <asp:Parameter Name="usuario" Type="String" />
+                    <asp:Parameter Name="tipoUsuario" Type="String" />
+                    <asp:ControlParameter ControlID="ddlgerenteRegional" Name="gerenteRegional" PropertyName="SelectedValue" Type="String" />
+                    <asp:ControlParameter ControlID="ddlJefeVentas" Name="jefeVenta" PropertyName="SelectedValue" Type="String" />
+                </SelectParameters>
+            </asp:SqlDataSource>
+        </td>
+        <td>
+            <asp:DropDownList ID="ddlProducto" runat="server" CssClass='form-control' Width="160px" DataSourceID="dsProductos" DataTextField="producto" DataValueField="id"></asp:DropDownList>
+            <asp:SqlDataSource ID="dsProductos" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ProductosDdl" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
+        </td>
+        <td>
+            <asp:DropDownList ID="ddlTipoVenta" runat="server" CssClass='form-control' Width="160px" DataSourceID="dsTipoVenta" DataTextField="descripcion" DataValueField="codigo"></asp:DropDownList>
+            <asp:SqlDataSource ID="dsTipoVenta" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                SelectCommand="select '-1' as codigo, '--Todos--' as descripcion
+                                    union
+                                    select '1' as codigo, 'Regular' as descripcion
+                                    union
+                                    select '2' as codigo, 'Promoción' as descripcion"></asp:SqlDataSource>
+        </td>
+    </tr>
+</table>
+<%--</div>--%>

@@ -1,0 +1,146 @@
+﻿Imports System.Collections.Generic
+Imports System.Data.SqlClient
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports co.com.CeluwebEstandarFV.DataObject
+
+Namespace BussinesObject
+    Public Class CoordenadasBO
+        Dim _cadenaConexion As String
+        Dim comando As SqlCommand
+        Dim reader As SqlDataReader
+        Dim conexion As Conexion
+        Dim filas As Integer = -1
+        Sub New(ByVal cadenaConexion As String)
+            Me._cadenaConexion = cadenaConexion
+        End Sub
+
+        Function obtenerCoordenadaDocumento(ByVal documento As String) As List(Of String)
+            'Dim ingreso As Boolean = False
+            Dim longitud As String = ""
+            Dim latitud As String = ""
+            Dim ubicacion As List(Of String) = New List(Of String)()
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "obtenerCoordenadaDocumentoSelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@documento", documento)
+                conexion.openConexion()
+
+                reader = comando.ExecuteReader()
+
+                If reader.HasRows Then
+                    While reader.Read
+                        longitud = reader("longitud").ToString.Replace(",", ".")
+                        latitud = reader("latitud").ToString.Replace(",", ".")
+
+                        ubicacion.Add(longitud)
+                        ubicacion.Add(latitud)
+                    End While
+                End If
+
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return ubicacion
+        End Function
+
+      
+        Function obtenerRecorridoVendedorMapa(ByVal fecha As String, ByVal codVendedor As String) As List(Of List(Of String))
+            Dim recorrido As List(Of List(Of String)) = New List(Of List(Of String))()
+            'Dim ubicacionPunto As List(Of String) = New List(Of String)()
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "ListaCoordenadaRecorridoVendedorSelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@fecha", fecha)
+                comando.Parameters.AddWithValue("@vendedor", codVendedor)
+                comando.Parameters.AddWithValue("@total", 0)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                If reader.HasRows Then
+                    While reader.Read
+                        Dim ubicacionPunto As List(Of String) = New List(Of String)()
+
+                        ubicacionPunto.Add(reader("cliente"))
+                        ubicacionPunto.Add(reader("latitud").ToString.Replace(",", "."))
+                        ubicacionPunto.Add(reader("longitud").ToString.Replace(",", "."))
+                        ubicacionPunto.Add(reader("recogio"))
+                        ubicacionPunto.Add(reader("numerodoc"))
+                        ubicacionPunto.Add(reader("icono"))
+                        ubicacionPunto.Add(reader("novedad"))
+                        ubicacionPunto.Add(reader("fechallegada"))
+                        ubicacionPunto.Add(reader("ordenVisita"))
+                        'ubicacionPunto.Add(reader("docCliente"))
+                        ubicacionPunto.Add(reader("codVendedor"))
+                        ubicacionPunto.Add(reader("hora"))
+                        ubicacionPunto.Add(reader("valorNeto"))
+                        ubicacionPunto.Add(reader("orden"))
+
+                        recorrido.Add(ubicacionPunto)
+                    End While
+                End If
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return recorrido
+        End Function
+
+        Function totalRecorridoVendedorMapa(ByVal fecha As String, ByVal codVendedor As String) As List(Of String)
+
+            Dim totales As List(Of String) = New List(Of String)()
+            Dim consulta As String = "ListaCoordenadaRecorridoVendedorSelProc"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@fecha", fecha)
+                comando.Parameters.AddWithValue("@vendedor", codVendedor)
+                comando.Parameters.AddWithValue("@total", 1)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                While reader.Read()
+                    totales.Add(reader("vendedor"))
+                    totales.Add(reader("ventas"))
+                    totales.Add(reader("noCompras"))
+                    totales.Add(reader("valorNeto"))
+                End While
+
+                conexion.CloseConexion()
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return totales
+
+        End Function
+
+    End Class
+End Namespace

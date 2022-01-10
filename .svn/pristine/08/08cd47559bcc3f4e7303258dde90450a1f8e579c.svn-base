@@ -1,0 +1,90 @@
+﻿Imports System.Collections.Generic
+Imports System.Configuration
+Imports co.com.CeluwebEstandarFV.BussinesObject
+Imports System.IO
+
+Partial Class Rutero_OrdenRutero
+    Inherits System.Web.UI.Page
+
+    Protected Sub btnAceptar_Click(sender As Object, e As EventArgs)
+        cargarInforme("-1")
+    End Sub
+
+    Protected Sub btnExportar_Click(sender As Object, e As EventArgs)
+        Dim sb As StringBuilder = New StringBuilder()
+        Dim sw As StringWriter = New StringWriter(sb)
+        Dim htw As HtmlTextWriter = New HtmlTextWriter(sw)
+        Dim pagina As Page = New Page
+        Dim form = New HtmlForm
+        gvRutero.EnableViewState = False
+        pagina.EnableEventValidation = False
+        pagina.DesignerInitialize()
+        pagina.Controls.Add(form)
+        form.Controls.Add(gvRutero)
+        pagina.RenderControl(htw)
+        Response.Clear()
+        Response.Buffer = True
+        Response.ContentType = "application/vnd.ms-excel"
+        Response.AddHeader("Content-Disposition", "attachment;filename=orden rutero.xls")
+        Response.Charset = "UTF-8"
+
+        Response.ContentEncoding = Encoding.Default
+        Response.Write(sb.ToString())
+        Response.End()
+    End Sub
+
+    Public Sub cargarInforme(ByVal parametro As String)
+        SqlRutero.SelectParameters("filtro").DefaultValue = parametro
+        gvRutero.DataBind()
+    End Sub
+
+
+    Protected Sub btnAsignar_Click(sender As Object, e As EventArgs)
+        Dim listaRutero As List(Of List(Of String)) = New List(Of List(Of String))
+
+        For Each row As GridViewRow In gvRutero.Rows
+            Dim idRutero As String = gvRutero.DataKeys(row.RowIndex).Values(0).ToString().Trim()
+            Dim ordenInicial As String = gvRutero.DataKeys(row.RowIndex).Values(1).ToString().Trim()
+            Dim txtOrden As TextBox = CType(row.FindControl("txtOrden"), TextBox)
+            Dim ordenNuevo As String = txtOrden.Text.Trim()
+
+            If ordenInicial <> ordenNuevo Then
+                ' idRutero,orden
+                Dim item As List(Of String) = New List(Of String)
+
+                item.Add(idRutero)
+                item.Add(ordenNuevo)
+                listaRutero.Add(item)
+            End If
+
+        Next
+
+        If gvRutero.Rows.Count > 0 Then
+            Dim consulta As RuteroBO = New RuteroBO(ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString())
+
+            If consulta.ordernarRutero(Session("codigoUsuario").ToString(), listaRutero) Then
+                gvRutero.DataBind()
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Finalizado!', 'Orden actualizado!', 'success')", True)
+            Else
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', 'Erro al registrar la información!!', 'error')", True)
+            End If
+        Else
+            ' ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', 'No hay información de rutero para actualizar orden', 'error')", True)
+        End If
+
+    End Sub
+    Protected Sub ddlVendedores_SelectedIndexChanged(sender As Object, e As EventArgs)
+        gvRutero.DataBind()
+    End Sub
+
+    Protected Sub ddlJefeVentas_SelectedIndexChanged(sender As Object, e As EventArgs)
+        ddlVendedores.DataBind()
+        gvRutero.DataBind()
+    End Sub
+
+    Protected Sub ddlgerenteRegional_SelectedIndexChanged(sender As Object, e As EventArgs)
+        ddlJefeVentas.DataBind()
+        ddlVendedores.DataBind()
+        gvRutero.DataBind()
+    End Sub
+End Class

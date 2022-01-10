@@ -1,0 +1,114 @@
+Namespace DataObject
+
+    Public Class Recorrido
+
+
+        Private fecha As String
+        Public Property _fecha() As String
+            Get
+                Return fecha
+            End Get
+            Set(ByVal value As String)
+                fecha = value
+            End Set
+        End Property
+
+
+        Private codigo As String
+        Public Property _codigo() As String
+            Get
+                Return codigo
+            End Get
+            Set(ByVal value As String)
+                codigo = value
+            End Set
+        End Property
+
+
+        Private cliente As String
+        Public Property _cliente() As String
+            Get
+                Return cliente
+            End Get
+            Set(ByVal value As String)
+                cliente = value
+            End Set
+        End Property
+
+
+        Private motivo As String
+        Public Property _motivo() As String
+            Get
+                Return motivo
+            End Get
+            Set(ByVal value As String)
+                motivo = value
+            End Set
+        End Property
+
+
+        Private valor As Double
+        Public Property _valor() As Double
+            Get
+                Return valor
+            End Get
+            Set(ByVal value As Double)
+                valor = value
+            End Set
+        End Property
+
+
+        Private vendedor As String
+        Public Property _vendedor() As String
+            Get
+                Return vendedor
+            End Get
+            Set(ByVal value As String)
+                vendedor = value
+            End Set
+        End Property
+
+
+        Private tieneFoto As String
+        Public Property _tieneFoto() As String
+            Get
+                Return tieneFoto
+            End Get
+            Set(ByVal value As String)
+                tieneFoto = value
+            End Set
+        End Property
+
+
+        Private hora As String
+        Public Property _hora() As String
+            Get
+                Return hora
+            End Get
+            Set(ByVal value As String)
+                hora = value
+            End Set
+        End Property
+
+
+        Sub New(ByVal fecha As String, ByVal codigo As String, ByVal cliente As String, ByVal motivo As String, _
+                ByVal valor As Double, ByVal vendedor As String, ByVal tieneFoto As String, ByVal hora As String)
+
+            Me.fecha = fecha
+            Me.codigo = codigo
+            Me.cliente = cliente
+            Me.motivo = motivo
+            Me.valor = valor
+            Me.vendedor = vendedor
+            Me.tieneFoto = tieneFoto
+            Me.hora = hora
+
+        End Sub
+
+        Sub New()
+
+        End Sub
+
+    End Class
+
+End Namespace

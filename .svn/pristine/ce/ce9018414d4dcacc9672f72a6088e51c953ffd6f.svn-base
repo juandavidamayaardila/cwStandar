@@ -1,0 +1,99 @@
+Imports System.IO
+Imports co.com.CeluwebEstandarFV.BussinesObject
+Imports System.Drawing
+
+Partial Class Administracion_AdministracionCatalogo
+    Inherits System.Web.UI.Page
+
+    Private cadenaConexion As String
+    Private catalogoBO As CatalogoBO
+    Protected Sub Page_Load(sender As Object, e As EventArgs) Handles Me.Load
+        cadenaConexion = ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString()
+        catalogoBO = New CatalogoBO(cadenaConexion)
+
+        If Page.IsPostBack = False Then
+            MessageDanger.Visible = False
+            MessageSuccess.Visible = False
+            muestraImagenes("-1")
+        End If
+    End Sub
+
+    Sub muestraImagenes(linea As String)
+        Dim Catalogo As DirectoryInfo = New DirectoryInfo(Server.MapPath("../Catalogo"))
+
+        hfImagesPath.Value = ""
+
+        If linea = "-1" Then
+            For Each file As FileInfo In Catalogo.GetFiles
+                hfImagesPath.Value += file.Name + "|"
+            Next
+        Else
+            Dim catalogoLinea As List(Of String) = New List(Of String)
+
+            catalogoLinea = catalogoBO.listaImagenesProductosCatalogo(linea)
+
+            For Each item As String In catalogoLinea
+                hfImagesPath.Value += item.Trim() + ".png|"
+            Next
+        End If
+    End Sub
+
+    Protected Sub btnEnviar_Click(sender As Object, e As EventArgs) Handles btnEnviar.Click
+        Dim directorio As String = Server.MapPath("../Catalogo/")
+        Dim flImages As HttpFileCollection = Request.Files
+        Dim i As Integer
+        Dim errorCarga As Boolean = False
+
+        For i = 0 To flImages.Count - 1
+            Dim flfile As HttpPostedFile = flImages(i)
+
+            Try
+                If flfile.ContentLength > 0 Then
+                    flfile.SaveAs(directorio & flfile.FileName)
+                    catalogoBO.ingresaProductoCatalogo(flfile.FileName.Replace(".png", ""))
+                Else
+                    errorCarga = True
+                End If
+            Catch ex As Exception
+            End Try
+        Next
+
+        If errorCarga = True Then
+            MessageDanger.Visible = True
+            MessageSuccess.Visible = False
+        Else
+            MessageDanger.Visible = False
+            MessageSuccess.Visible = True
+        End If
+
+        muestraImagenes("-1")
+    End Sub
+
+    Protected Sub btnBuscar_Click(sender As Object, e As EventArgs)
+        Dim linea As String = ""
+
+        linea = ddlLineaVenta.SelectedValue.ToString()
+
+        muestraImagenes(linea)
+        dsProductosLineaCatalogo.SelectParameters("linea").DefaultValue = linea
+        gvProductosLineaCatalogo.DataBind()
+
+        MessageDanger.Visible = False
+        MessageSuccess.Visible = False
+    End Sub
+
+    Protected Sub gvProductosLineaCatalogo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles gvProductosLineaCatalogo.SelectedIndexChanged
+        Dim url As String = ""
+        Dim imagen As String = ""
+        imagen = gvProductosLineaCatalogo.SelectedValue.ToString()
+
+        Try
+            url = Server.MapPath("~/" & imagen)
+            File.Delete(url)
+            catalogoBO.eliminaProductoCatalogo(imagen)
+            Response.Redirect("~/Administracion/AdministracionCatalogo.aspx")
+        Catch ex As Exception
+            Dim mensaje As String = ex.Message
+        End Try
+    End Sub
+End Class

@@ -1,0 +1,74 @@
+Namespace DataObject
+
+    Public Class AdminUsuarios
+
+
+        Private codigo As Integer
+        Public Property _codigo() As Integer
+            Get
+                Return codigo
+            End Get
+            Set(ByVal value As Integer)
+                codigo = value
+            End Set
+        End Property
+
+
+        Private nombre As String
+        Public Property _nombre() As String
+            Get
+                Return nombre
+            End Get
+            Set(ByVal value As String)
+                nombre = value
+            End Set
+        End Property
+
+
+        Private tipoUsuario As Integer
+        Public Property _tipoUsuario() As Integer
+            Get
+                Return tipoUsuario
+            End Get
+            Set(ByVal value As Integer)
+                tipoUsuario = value
+            End Set
+        End Property
+
+
+        Private usuario As String
+        Public Property _usuario() As String
+            Get
+                Return usuario
+            End Get
+            Set(ByVal value As String)
+                usuario = value
+            End Set
+        End Property
+
+
+        Private password As String
+        Public Property _password() As String
+            Get
+                Return password
+            End Get
+            Set(ByVal value As String)
+                password = value
+            End Set
+        End Property
+        Sub New(ByVal codigo As Integer, ByVal nombre As String, ByVal tipoUsuario As Integer, ByVal usuario As String, ByVal password As String)
+
+            Me.codigo = codigo
+            Me.nombre = nombre
+            Me.tipoUsuario = tipoUsuario
+            Me.usuario = usuario
+            Me.password = password
+
+        End Sub
+
+        Sub New()
+
+        End Sub
+
+    End Class
+End Namespace

@@ -1,0 +1,174 @@
+﻿Imports System.Collections.Generic
+Imports co.com.CeluwebEstandarFV.DataObject
+Imports co.com.CeluwebEstandarFV.BussinesObject
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports System.Drawing
+Imports System.Drawing.Drawing2D
+Imports System.Data.SqlClient
+Imports System.IO
+Imports System.Web.Script.Serialization
+Imports System.Web
+
+Partial Class Reportes_VentasLineaProductos
+    Inherits System.Web.UI.Page
+
+    Protected Sub Page_Load(sender As Object, e As EventArgs) Handles Me.Load
+        If IsPostBack = False Then
+
+        End If
+    End Sub
+
+    Sub exporta()
+        Dim sb As StringBuilder = New StringBuilder()
+        Dim sw As StringWriter = New StringWriter(sb)
+        Dim htw As HtmlTextWriter = New HtmlTextWriter(sw)
+        Dim pagina As Page = New Page
+        Dim form = New HtmlForm
+        gvVentasLinea.EnableViewState = False
+        pagina.EnableEventValidation = False
+        pagina.DesignerInitialize()
+        pagina.Controls.Add(form)
+        form.Controls.Add(gvVentasLinea)
+        pagina.RenderControl(htw)
+        Response.Clear()
+        Response.Buffer = True
+        Response.ContentType = "application/vnd.ms-excel"
+        Response.AddHeader("Content-Disposition", "attachment;filename=Pedidos VentaLineaProductos.xls")
+        Response.Charset = "UTF-8"
+
+        Response.ContentEncoding = Encoding.Default
+        Response.Write(sb.ToString())
+        Response.End()
+    End Sub
+
+    Sub cargaDatos()
+        dsVentaLineaProducto.SelectParameters("fechainicial").DefaultValue = filtrosLinea.fechaInicial
+        dsVentaLineaProducto.SelectParameters("fechafinal").DefaultValue = filtrosLinea.fechaFinal
+        dsVentaLineaProducto.SelectParameters("usuario").DefaultValue = Session("codigousuario").ToString.Trim
+        dsVentaLineaProducto.SelectParameters("tipoUsuario").DefaultValue = Session("tipo")
+        dsVentaLineaProducto.SelectParameters("gerenteRegional").DefaultValue = filtrosLinea.gerenteRegional
+        dsVentaLineaProducto.SelectParameters("Jefeventa").DefaultValue = filtrosLinea.jefeVentas
+        dsVentaLineaProducto.SelectParameters("vendedor").DefaultValue = filtrosLinea.vendedor
+        dsVentaLineaProducto.SelectParameters("linea").DefaultValue = filtrosLinea.linea
+
+        gvVentasLinea.DataBind()
+    End Sub
+
+    Protected Sub gvVentasLinea_SelectedIndexChanged(sender As Object, e As EventArgs) Handles gvVentasLinea.SelectedIndexChanged
+        Dim linea As String
+
+        linea = gvVentasLinea.SelectedValue.ToString()
+
+        cargarDetalle(linea)
+    End Sub
+
+    Sub cargarDetalle(linea As String)
+        mpPanelResumen.Show()
+
+        dsDetalleVentaLinea.SelectParameters("fechainicial").DefaultValue = filtrosLinea.fechaInicial
+        dsDetalleVentaLinea.SelectParameters("fechafinal").DefaultValue = filtrosLinea.fechaFinal
+        dsDetalleVentaLinea.SelectParameters("usuario").DefaultValue = Session("codigousuario").ToString.Trim
+        dsDetalleVentaLinea.SelectParameters("tipoUsuario").DefaultValue = Session("tipo")
+        dsDetalleVentaLinea.SelectParameters("gerenteRegional").DefaultValue = filtrosLinea.gerenteRegional
+        dsDetalleVentaLinea.SelectParameters("Jefeventa").DefaultValue = filtrosLinea.jefeVentas
+        dsDetalleVentaLinea.SelectParameters("vendedor").DefaultValue = filtrosLinea.vendedor
+        dsDetalleVentaLinea.SelectParameters("linea").DefaultValue = linea
+
+        gvDetalleVentaLinea.DataBind()
+    End Sub
+
+    Protected Sub btnExportarDetalle_Click(sender As Object, e As EventArgs) Handles btnExportarDetalle.Click
+        exportaDetalle()
+    End Sub
+
+    Sub exportaDetalle()
+        Dim sb As StringBuilder = New StringBuilder()
+        Dim sw As StringWriter = New StringWriter(sb)
+        Dim htw As HtmlTextWriter = New HtmlTextWriter(sw)
+        Dim pagina As Page = New Page
+        Dim form = New HtmlForm
+        gvDetalleVentaLinea.EnableViewState = False
+        pagina.EnableEventValidation = False
+        pagina.DesignerInitialize()
+        pagina.Controls.Add(form)
+        form.Controls.Add(gvDetalleVentaLinea)
+        pagina.RenderControl(htw)
+        Response.Clear()
+        Response.Buffer = True
+        Response.ContentType = "application/vnd.ms-excel"
+        Response.AddHeader("Content-Disposition", "attachment;filename=Pedidos VentaLineaProductosDetalle.xls")
+        Response.Charset = "UTF-8"
+
+        Response.ContentEncoding = Encoding.Default
+        Response.Write(sb.ToString())
+        Response.End()
+    End Sub
+
+    Protected Sub btnAceptar_Click(sender As Object, e As EventArgs) Handles btnAceptar.Click
+        cargaDatos()
+    End Sub
+
+    Protected Sub btnExportar_Click(sender As Object, e As EventArgs) Handles btnExportar.Click
+        exporta()
+    End Sub
+
+    Private GranTotalCantidad As Double = 0
+    Private GranTotalNeto As Double = 0
+    Private GranTotalBruto As Double = 0
+    Protected Sub gvVentasLinea_RowDataBound(ByVal sender As Object, ByVal e As GridViewRowEventArgs)
+
+        Dim filas As Integer = gvVentasLinea.Rows.Count
+
+        Try
+            If (e.Row.RowType = DataControlRowType.DataRow) Then
+                Dim totalCantidad As String = e.Row.Cells(3).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalBruto As String = e.Row.Cells(4).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalNeto As String = e.Row.Cells(5).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+
+                GranTotalCantidad = (GranTotalCantidad + Convert.ToDouble(totalCantidad))
+                GranTotalBruto = (GranTotalBruto + Convert.ToDouble(totalBruto))
+                GranTotalNeto = (GranTotalNeto + Convert.ToDouble(totalNeto))
+            End If
+
+            If (e.Row.RowType = DataControlRowType.Footer) Then
+                e.Row.Cells(1).Text = "TOTAL"
+                e.Row.Cells(2).Text = "Lineas: " + filas.ToString()
+                e.Row.Cells(3).Text = GranTotalCantidad.ToString()
+                e.Row.Cells(4).Text = GranTotalBruto.ToString("$ 0,0")
+                e.Row.Cells(5).Text = GranTotalNeto.ToString("$ 0,0")
+            End If
+        Catch ex As Exception
+            Dim resultado As String = ex.Message
+        End Try
+    End Sub
+
+    Private GranTotalCantidadDetalle As Double = 0
+    Private GranTotalNetoDetalle As Double = 0
+    Private GranTotalBrutoDetalle As Double = 0
+    Protected Sub gvDetalleVentaLinea_RowDataBound(ByVal sender As Object, ByVal e As GridViewRowEventArgs)
+
+        Dim filas As Integer = gvDetalleVentaLinea.Rows.Count
+
+        Try
+            If (e.Row.RowType = DataControlRowType.DataRow) Then
+                Dim totalCantidad As String = e.Row.Cells(3).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalBruto As String = e.Row.Cells(4).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalNeto As String = e.Row.Cells(5).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+
+                GranTotalCantidadDetalle = (GranTotalCantidadDetalle + Convert.ToDouble(totalCantidad))
+                GranTotalBrutoDetalle = (GranTotalBrutoDetalle + Convert.ToDouble(totalBruto))
+                GranTotalNetoDetalle = (GranTotalNetoDetalle + Convert.ToDouble(totalNeto))
+            End If
+
+            If (e.Row.RowType = DataControlRowType.Footer) Then
+                e.Row.Cells(1).Text = "TOTAL"
+                e.Row.Cells(2).Text = "Productos: " + filas.ToString()
+                e.Row.Cells(3).Text = GranTotalCantidadDetalle.ToString()
+                e.Row.Cells(4).Text = GranTotalBrutoDetalle.ToString("$ 0,0")
+                e.Row.Cells(5).Text = GranTotalNetoDetalle.ToString("$ 0,0")
+            End If
+        Catch ex As Exception
+            Dim resultado As String = ex.Message
+        End Try
+    End Sub
+End Class

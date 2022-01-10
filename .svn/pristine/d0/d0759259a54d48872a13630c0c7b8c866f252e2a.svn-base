@@ -1,0 +1,68 @@
+﻿Namespace DataObject
+
+
+    Public Class PresupuestoLinea
+
+
+        Private codigo As String
+        Public Property _codigo() As String
+            Get
+                Return codigo
+            End Get
+            Set(ByVal value As String)
+                codigo = value
+            End Set
+        End Property
+
+
+        Private documento As String
+        Public Property _documento() As String
+            Get
+                Return documento
+            End Get
+            Set(ByVal value As String)
+                documento = value
+            End Set
+        End Property
+
+
+        Private linea As String
+        Public Property _linea() As String
+            Get
+                Return linea
+            End Get
+            Set(ByVal value As String)
+                linea = value
+            End Set
+        End Property
+
+
+        Private valor As Double
+        Public Property _valor() As Double
+            Get
+                Return valor
+            End Get
+            Set(ByVal value As Double)
+                valor = value
+            End Set
+        End Property
+
+
+        Private vendedor As String
+        Public Property _vendedor() As String
+            Get
+                Return vendedor
+            End Get
+            Set(ByVal value As String)
+                vendedor = value
+            End Set
+        End Property
+
+
+
+
+
+    End Class
+
+
+End Namespace

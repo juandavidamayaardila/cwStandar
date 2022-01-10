@@ -1,0 +1,172 @@
+Namespace DataObject
+    Public Class PedidosRealizados
+
+
+        Private vendedor As String
+        Public Property _vendedor() As String
+            Get
+                Return vendedor
+            End Get
+            Set(ByVal value As String)
+                vendedor = value
+            End Set
+        End Property
+
+
+        Private nombre As String
+        Public Property _nombre() As String
+            Get
+                Return nombre
+            End Get
+            Set(ByVal value As String)
+                nombre = value
+            End Set
+        End Property
+
+
+        Private totalVisitas As Integer
+        Public Property _totalVisitas() As Integer
+            Get
+                Return totalVisitas
+            End Get
+            Set(ByVal value As Integer)
+                totalVisitas = value
+            End Set
+        End Property
+
+
+        Private totalPedidos As Integer
+        Public Property _totalPedidos() As Integer
+            Get
+                Return totalPedidos
+            End Get
+            Set(ByVal value As Integer)
+                totalPedidos = value
+            End Set
+        End Property
+
+
+        Private totalNoCompras As Integer
+        Public Property _totalNoCompras() As Integer
+            Get
+                Return totalNoCompras
+            End Get
+            Set(ByVal value As Integer)
+                totalNoCompras = value
+            End Set
+        End Property
+
+
+        Private efectividad As Double
+        Public Property _efectividad() As Double
+            Get
+                Return efectividad
+            End Get
+            Set(ByVal value As Double)
+                efectividad = value
+            End Set
+        End Property
+
+
+        Private valor As Double
+        Public Property _valor() As Double
+            Get
+                Return valor
+            End Get
+            Set(ByVal value As Double)
+                valor = value
+            End Set
+        End Property
+
+
+        Private bloqueado As Integer
+        Public Property _bloqueado() As Integer
+            Get
+                Return bloqueado
+            End Get
+            Set(ByVal value As Integer)
+                bloqueado = value
+            End Set
+        End Property
+
+        ' Private telefonicas As Integer
+        'Public Property _telefonicas() As Integer
+        '   Get
+        '      Return telefonicas
+        ' End Get
+        'Set(ByVal value As Integer)
+        '   telefonicas = value
+        'End Set
+        'End Property
+
+        Private productividad As Double
+        Public Property _productividad() As Double
+            Get
+                Return productividad
+            End Get
+            Set(ByVal value As Double)
+                productividad = value
+            End Set
+        End Property
+
+
+        Private cn As Integer
+        Public Property _cn() As Integer
+            Get
+                Return cn
+            End Get
+            Set(ByVal value As Integer)
+                cn = value
+            End Set
+        End Property
+
+
+        Private recaudo As Double
+        Public Property _recaudo() As Double
+            Get
+                Return recaudo
+            End Get
+            Set(ByVal value As Double)
+                recaudo = value
+            End Set
+        End Property
+
+
+        Private vcompra As Integer
+        Public Property _vcompra() As Integer
+            Get
+                Return vcompra
+            End Get
+            Set(ByVal value As Integer)
+                vcompra = value
+            End Set
+        End Property
+
+
+
+        Sub New(ByVal vendedor As String, ByVal nombre As String, ByVal totalVisitas As Integer, ByVal totalPedidos As Integer, _
+                ByVal totalNoCompras As Integer, ByVal efectividad As Double, ByVal valor As Double, ByVal bloqueado As Integer, ByVal productividad As Double, _
+                ByVal cn As Integer, ByVal recaudo As Double, ByVal vcompra As Integer)
+
+            Me.vendedor = vendedor
+            Me.nombre = nombre
+            Me.totalVisitas = totalVisitas
+            Me.totalPedidos = totalPedidos
+            Me.totalNoCompras = totalNoCompras
+            Me.efectividad = efectividad
+            Me.valor = valor
+            Me.bloqueado = bloqueado
+            Me.productividad = productividad
+            Me.cn = cn
+            Me.recaudo = recaudo
+            Me.vcompra = vcompra
+        End Sub
+
+        Sub New()
+
+        End Sub
+
+    End Class
+End Namespace
+
+

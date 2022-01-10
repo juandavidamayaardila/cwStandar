@@ -1,0 +1,94 @@
+﻿<%@ Page Title="CELUWEB" Language="C#" MasterPageFile="~/menu.master" AutoEventWireup="true" CodeFile="ReporteHabeasData.aspx.cs" Inherits="Reportes_ReporteHabeasData" %>
+
+<%@ Register Assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="AjaxControlToolkit" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<%@ Register TagPrefix="CP" TagName="Filtros" Src="~/Filtros/FiltrosUsuarios.ascx" %>
+
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/informes.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Informe de Habeas Data"></asp:Label>
+                </small>
+            </h1>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <CP:Filtros runat="server" ID="TCFiltrosNew" />
+                    <div style="text-align: center">
+                        <asp:Button ID="btnFiltrar" runat="server" CssClass="btn btn-primary" Text="Filtrar" OnClick="btnFiltrar_Click" />
+                        <asp:Button ID="btnExcel" runat="server" CssClass="btn btn-info" OnClick="btnExcel_Click" Text="Exportar" />
+                        <asp:Button ID="btnGenerarFotos" runat="server" CssClass="btn btn-success" Text="Fotos ZIP" ToolTip="Exportar Fotos en Zip" OnClick="btnGenerarFotos_Click"
+                            Visible="false" OnClientClick="return confirm('Para la generación del archivo zip se abrirá una nueva ventana, por favor tenga en cuenta que en algunos casos este proceso puede demorar muchos minutos, por lo tanto no intente cerrar la ventana emergente y espere a que salga el mensaje indicándole cómo descargar el archivo');"></asp:Button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Lista de habeas data"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive filtros" style="overflow: auto; max-height: 300px;">
+                        <asp:GridView ID="gvDatos" runat="server" CssClass="gvHeader filtrar hide-column" DataKeyNames="numDoc" AutoGenerateColumns="False"
+                            DataSourceID="dsHabeasData" OnSelectedIndexChanged="gvDatos_SelectedIndexChanged">
+                            <Columns>
+                                <asp:BoundField DataField="numDoc" HeaderText="Documento" ReadOnly="True" SortExpression="numDoc" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="codigoCliente" HeaderText="Código cliente" SortExpression="codigoCliente" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="nit" HeaderText="Nit" SortExpression="nit" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="nombre" HeaderText="Nombre" SortExpression="nombre" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="ciudad" HeaderText="Ciudad" SortExpression="ciudad" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="email" HeaderText="Correo eletcrónico" SortExpression="email" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="autorizo" HeaderText="Autorizado" SortExpression="autorizo" ItemStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="nuevo" HeaderText="Nuevo" SortExpression="nuevo" ItemStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="observacion" HeaderText="Observación" SortExpression="observacion" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="codvendedor" HeaderText="Código vendedor" SortExpression="codvendedor" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="vendedor" HeaderText="Vendedor" SortExpression="vendedor" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="fechaServidor" HeaderText="Fecha de registro" SortExpression="fechaServidor" ItemStyle-HorizontalAlign="Center" />
+                                <asp:CommandField HeaderText="Foto" ShowSelectButton="True" SelectImageUrl="~/Styles/icons/lista.png" ButtonType="Image" ItemStyle-HorizontalAlign="Center" />
+                            </Columns>
+                        </asp:GridView>
+                        <asp:SqlDataSource ID="dsHabeasData" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ReporteHabeasDataSelProc" SelectCommandType="StoredProcedure">
+                            <SelectParameters>
+                                <asp:Parameter Name="fechaInicial" Type="String" />
+                                <asp:Parameter Name="fechaFinal" Type="String" />
+                                <asp:Parameter Name="usuario" Type="String" />
+                                <asp:Parameter Name="tipoUsuario" Type="String" />
+                                <asp:Parameter Name="gerenteRegional" Type="String" />
+                                <asp:Parameter Name="jefeVenta" Type="String" />
+                                <asp:Parameter Name="vendedor" Type="String" />
+                            </SelectParameters>
+                        </asp:SqlDataSource>
+                    </div>
+                </div>
+            </div>
+            <asp:Panel ID="panelResumen" runat="server" BackColor="White" CssClass="modalPopUp" Height="420px" Width="600px">
+                <div>
+                    <asp:Button ID="bCloseResumen" runat="server" CausesValidation="false" CssClass="buttonPopUp" OnClick="bCloseResumen_Click" />
+                </div>
+                <br />
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div style="text-align: center">
+                            <img runat="server" id="image" style="height: 330px; width: 520px;" />
+                        </div>
+                    </div>
+                </div>
+            </asp:Panel>
+            <asp:HiddenField ID="hfShowResumen" runat="server" />
+            <asp:HiddenField ID="hfHideResumen" runat="server" />
+            <cc1:ModalPopupExtender ID="mpPanelResumen" runat="server" PopupControlID="panelResumen"
+                TargetControlID="hfShowResumen" BackgroundCssClass="FondoAplicacion" CancelControlID="hfHideResumen">
+            </cc1:ModalPopupExtender>
+        </ContentTemplate>
+        <Triggers>
+            <AjaxControlToolkit:PostBackTrigger ControlID="btnExcel"></AjaxControlToolkit:PostBackTrigger>
+            <AjaxControlToolkit:PostBackTrigger ControlID="btnGenerarFotos"></AjaxControlToolkit:PostBackTrigger>
+        </Triggers>
+        <%--</asp:UpdatePanel>--%>
+    </asp:UpdatePanel>
+</asp:Content>
+

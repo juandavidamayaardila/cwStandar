@@ -1,0 +1,109 @@
+﻿<%@ Page Title="CELUWEB" Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="VentasLineaProductos.aspx.vb" Inherits="Reportes_VentasLineaProductos" %>
+
+<%@ Register Assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="asp" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<%@ Register TagPrefix="CP" TagName="FiltrosLinea" Src="~/Filtros/FiltrosUsuariosLinea.ascx" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="udpanel" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/informes.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Informe de ventas por linea"></asp:Label>
+                </small>
+            </h1>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <CP:FiltrosLinea ID="filtrosLinea" runat="server" />
+                    <div style="text-align: center">
+                        <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" />
+                        <asp:Button ID="btnExportar" runat="server" Text="Exportar" CssClass="btn btn-info" />
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Ventas de linea por producto"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive filtros" style="overflow: auto; max-height: 300px;">
+                        <asp:GridView ID="gvVentasLinea" runat="server" CssClass="gvHeader filtrar hide-column" AutoGenerateColumns="False"
+                            DataSourceID="dsVentaLineaProducto" EnableModelValidation="True" DataKeyNames="codLinea" OnRowDataBound="gvVentasLinea_RowDataBound" ShowFooter="true">
+                            <Columns>
+                                <asp:CommandField HeaderText="Ver detalle" ShowSelectButton="True" ItemStyle-HorizontalAlign="Center" SelectImageUrl="~/Styles/icons/listar.png" ButtonType="Image" />
+                                <asp:BoundField DataField="codLinea" HeaderText="Código linea" SortExpression="codLinea" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="linea" HeaderText="Linea" SortExpression="linea" ReadOnly="True" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="cantidad" HeaderText="Cantidad" ReadOnly="True" SortExpression="cantidad" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="valorBruto" HeaderText="Valor neto" ReadOnly="True" SortExpression="valorBruto" DataFormatString="{0:c2}" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="valorNeto" HeaderText="Valor bruto" ReadOnly="True" SortExpression="valorNeto" DataFormatString="{0:c2}" ItemStyle-HorizontalAlign="Right" />
+                            </Columns>
+                            <FooterStyle CssClass="gvHeader-footer" />
+                        </asp:GridView>
+                        <asp:SqlDataSource ID="dsVentaLineaProducto" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ListaVentasLineaProductoSelProc" SelectCommandType="StoredProcedure">
+                            <SelectParameters>
+                                <asp:Parameter Name="fechainicial" Type="String" />
+                                <asp:Parameter Name="fechafinal" Type="String" />
+                                <asp:Parameter Name="usuario" Type="String" />
+                                <asp:Parameter Name="tipoUsuario" Type="String" />
+                                <asp:Parameter Name="gerenteRegional" Type="String" />
+                                <asp:Parameter Name="Jefeventa" Type="String" />
+                                <asp:Parameter Name="vendedor" Type="String" />
+                                <asp:Parameter Name="linea" Type="String" />
+                            </SelectParameters>
+                        </asp:SqlDataSource>
+                    </div>
+                </div>
+            </div>
+            <asp:Panel ID="panelResumen" runat="server" CssClass="modalPopUp">
+                <div>
+                    <asp:Button ID="bCloseResumen" runat="server" CssClass="buttonPopUp" />
+                </div>
+                <h2 style="text-align: center;">
+                    <asp:Label runat="server" Text="Detalle de venta"></asp:Label>
+                </h2>
+                <div class="table-responsive" style="overflow: auto; max-height: 350px;">
+                    <asp:GridView ID="gvDetalleVentaLinea" runat="server" CssClass="gvHeader" AutoGenerateColumns="False" DataSourceID="dsDetalleVentaLinea"
+                        Width="100%" EnableModelValidation="True" ShowFooter="true" OnRowDataBound="gvDetalleVentaLinea_RowDataBound">
+                        <Columns>
+                            <asp:BoundField DataField="linea" HeaderText="Linea" SortExpression="linea" />
+                            <asp:BoundField DataField="codProducto" HeaderText="Código producto" SortExpression="codProducto" ItemStyle-HorizontalAlign="Left" />
+                            <asp:BoundField DataField="producto" HeaderText="Producto" ReadOnly="True" SortExpression="producto" ItemStyle-HorizontalAlign="Left" />
+                            <asp:BoundField DataField="cantidad" HeaderText="Cantidad" ReadOnly="True" SortExpression="cantidad" ItemStyle-HorizontalAlign="Right" />
+                            <asp:BoundField DataField="valorBruto" HeaderText="Valor neto" ReadOnly="True" SortExpression="valorBruto" DataFormatString="{0:c}" ItemStyle-HorizontalAlign="Right" />
+                            <asp:BoundField DataField="valorNeto" HeaderText="Valor bruto" ReadOnly="True" SortExpression="valorNeto" DataFormatString="{0:c}" ItemStyle-HorizontalAlign="Right" />
+                        </Columns>
+                        <FooterStyle CssClass="gvHeader-footer" />
+                    </asp:GridView>
+                    <asp:SqlDataSource ID="dsDetalleVentaLinea" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ListaDetalleVentasLineaProductoSelProc" SelectCommandType="StoredProcedure">
+                        <SelectParameters>
+                            <asp:Parameter Name="fechainicial" Type="String" />
+                            <asp:Parameter Name="fechafinal" Type="String" />
+                            <asp:Parameter Name="usuario" Type="String" />
+                            <asp:Parameter Name="tipoUsuario" Type="String" />
+                            <asp:Parameter Name="gerenteRegional" Type="String" />
+                            <asp:Parameter Name="Jefeventa" Type="String" />
+                            <asp:Parameter Name="vendedor" Type="String" />
+                            <asp:Parameter Name="linea" Type="String" />
+                        </SelectParameters>
+                    </asp:SqlDataSource>
+                </div>
+                <div style="text-align: center">
+                    <asp:Button ID="btnExportarDetalle" runat="server" Text="Exportar" CssClass="btn btn-info" />
+                </div>
+            </asp:Panel>
+
+            <asp:HiddenField ID="hfShowResumen" runat="server" />
+            <asp:HiddenField ID="hfHideResumen" runat="server" />
+            <cc1:ModalPopupExtender ID="mpPanelResumen" runat="server" PopupControlID="panelResumen"
+                TargetControlID="hfShowResumen" BackgroundCssClass="FondoModal" CancelControlID="hfHideResumen">
+            </cc1:ModalPopupExtender>
+        </ContentTemplate>
+        <Triggers>
+            <asp:PostBackTrigger ControlID="btnExportar" />
+            <asp:PostBackTrigger ControlID="btnExportarDetalle" />
+        </Triggers>
+    </asp:UpdatePanel>
+</asp:Content>

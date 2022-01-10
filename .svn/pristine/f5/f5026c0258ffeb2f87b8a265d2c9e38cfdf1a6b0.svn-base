@@ -1,0 +1,134 @@
+﻿Imports System.Collections.Generic
+Imports co.com.CeluwebEstandarFV.DataObject
+Imports co.com.CeluwebEstandarFV.BussinesObject
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports System.Drawing
+Imports System.Drawing.Drawing2D
+Imports System.Data.SqlClient
+Imports System.IO
+Imports System.Web.Script.Serialization
+Imports System.Web
+
+Partial Class Reportes_DevolucionesVendedor
+    Inherits System.Web.UI.Page
+    'Public vendedor As String
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If IsPostBack = False Then
+        End If
+    End Sub
+    Protected Sub btnAceptar_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnAceptar.Click
+        muestraPedidos()
+    End Sub
+
+    Sub muestraPedidos()
+        dsPedidosVendedor.SelectParameters("fechainicial").DefaultValue = filtros.fechaInicial
+        dsPedidosVendedor.SelectParameters("fechafinal").DefaultValue = filtros.fechaFinal
+        dsPedidosVendedor.SelectParameters("usuario").DefaultValue = Session("codigousuario").ToString.Trim
+        dsPedidosVendedor.SelectParameters("tipoUsuario").DefaultValue = Session("tipo")
+        dsPedidosVendedor.SelectParameters("gerenteRegional").DefaultValue = filtros.gerenteRegional
+        dsPedidosVendedor.SelectParameters("jefeVenta").DefaultValue = filtros.jefeVentas
+        dsPedidosVendedor.SelectParameters("vendedor").DefaultValue = filtros.vendedor
+
+        gvPedidosVendedor.DataBind()
+    End Sub
+    Protected Sub btnExportar_Click(sender As Object, e As EventArgs) Handles btnExportar.Click
+        exporta()
+    End Sub
+
+    Sub exporta()
+        Dim sb As StringBuilder = New StringBuilder()
+        Dim sw As StringWriter = New StringWriter(sb)
+        Dim htw As HtmlTextWriter = New HtmlTextWriter(sw)
+        Dim pagina As Page = New Page
+        Dim form = New HtmlForm
+        gvPedidosVendedor.EnableViewState = False
+        pagina.EnableEventValidation = False
+        pagina.DesignerInitialize()
+        pagina.Controls.Add(form)
+        form.Controls.Add(gvPedidosVendedor)
+        pagina.RenderControl(htw)
+        Response.Clear()
+        Response.Buffer = True
+        Response.ContentType = "application/vnd.ms-excel"
+        Response.AddHeader("Content-Disposition", "attachment;filename=Devoluciones Vendedor.xls")
+        Response.Charset = "UTF-8"
+
+        Response.ContentEncoding = Encoding.Default
+        Response.Write(sb.ToString())
+        Response.End()
+    End Sub
+
+    Private GranValorN As Double = 0
+    Private GranValorB As Double = 0
+
+    Protected Sub gvPedidosVendedor_RowDataBound(ByVal sender As Object, ByVal e As GridViewRowEventArgs)
+        Dim filas As Integer = gvPedidosVendedor.Rows.Count
+
+        Try
+            If (e.Row.RowType = DataControlRowType.DataRow) Then
+                Dim valorB As String = e.Row.Cells(7).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim ValorN As String = e.Row.Cells(8).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+
+                GranValorB = (GranValorB + Convert.ToDouble(valorB))
+                GranValorN = (GranValorN + Convert.ToDouble(ValorN))
+            End If
+            If (e.Row.RowType = DataControlRowType.Footer) Then
+                e.Row.Cells(5).Text = "TOTAL"
+                e.Row.Cells(6).Text = "Pedidos: " & filas
+                e.Row.Cells(7).Text = GranValorB.ToString("$ 0,0")
+                e.Row.Cells(8).Text = GranValorN.ToString("$ 0,0")
+            End If
+        Catch ex As Exception
+            Dim resultado As String = ex.Message
+        End Try
+    End Sub
+
+    Protected Sub gvPedidosVendedor_SelectedIndexChanged(sender As Object, e As EventArgs) Handles gvPedidosVendedor.SelectedIndexChanged
+        Dim documento As String = ""
+        Dim codigoCliente As String = ""
+        Dim clienteNuevo As String = ""
+
+        documento = gvPedidosVendedor.SelectedValue.ToString()
+        codigoCliente = gvPedidosVendedor.SelectedRow.Cells(4).Text.ToString()
+        clienteNuevo = "No"
+
+        mpPanelResumen.Show()
+        lblNumdoc.Text = "Cambio número: " + documento
+
+        dsDatosCliente.SelectParameters("codigoCliente").DefaultValue = codigoCliente
+        dsDatosCliente.SelectParameters("nuevo").DefaultValue = clienteNuevo
+        gvCliente.DataBind()
+
+        dsDetalle.SelectParameters("documento").DefaultValue = documento
+        gvdetalle.DataBind()
+    End Sub
+
+    Protected Sub bCloseResumen_Click(sender As Object, e As EventArgs) Handles bCloseResumen.Click
+        mpPanelResumen.Hide()
+    End Sub
+
+    Private GranValordetalleN As Double = 0
+    Private GranValorDetalleB As Double = 0
+
+    Protected Sub gvdetalle_RowDataBound(ByVal sender As Object, ByVal e As GridViewRowEventArgs)
+        Dim filas As Integer = gvdetalle.Rows.Count
+
+        Try
+            If (e.Row.RowType = DataControlRowType.DataRow) Then
+                Dim valorB As String = e.Row.Cells(5).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim ValorN As String = e.Row.Cells(7).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+
+                GranValorDetalleB = (GranValorDetalleB + Convert.ToDouble(valorB))
+                GranValordetalleN = (GranValordetalleN + Convert.ToDouble(ValorN))
+            End If
+            If (e.Row.RowType = DataControlRowType.Footer) Then
+                e.Row.Cells(1).Text = "TOTAL"
+                e.Row.Cells(2).Text = "Referencias: " & filas
+                e.Row.Cells(5).Text = GranValorDetalleB.ToString("$ 0,0")
+                e.Row.Cells(7).Text = GranValordetalleN.ToString("$ 0,0")
+            End If
+        Catch ex As Exception
+            Dim resultado As String = ex.Message
+        End Try
+    End Sub
+End Class

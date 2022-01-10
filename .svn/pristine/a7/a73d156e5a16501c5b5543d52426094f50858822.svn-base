@@ -1,0 +1,155 @@
+﻿Imports System.Collections.Generic
+Imports co.com.CeluwebEstandarFV.DataObject
+Imports co.com.CeluwebEstandarFV.BussinesObject
+Imports System.Data.SqlClient
+Partial Class Administracion_AdminUsuarios
+    Inherits System.Web.UI.Page
+    Private cadenaConexion As String
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        cadenaconexion = ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString()
+
+        If Page.IsPostBack = False Then
+            ddlTipoUsuarios.DataBind()
+            cargarUsuarios()
+        End If
+    End Sub
+    Sub cargarUsuarios()
+        gvUsuarios.DataBind()
+    End Sub
+
+    Protected Sub gvUsuarios_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles gvUsuarios.SelectedIndexChanged
+        Dim codigo As String = ""
+
+        codigo = gvUsuarios.SelectedValue.ToString()
+
+        If String.IsNullOrEmpty(codigo) = False Then
+            Dim nombre As String
+            Dim usuario As String
+            Dim tuser As Integer
+            Dim pass As String
+
+            nombre = gvUsuarios.SelectedRow.Cells(2).Text.ToString()
+            usuario = gvUsuarios.SelectedRow.Cells(4).Text.ToString()
+            pass = gvUsuarios.SelectedRow.Cells(5).Text.ToString()
+            tuser = Convert.ToInt32(gvUsuarios.SelectedRow.Cells(3).Text.ToString())
+
+            txtNombre.Text = nombre.Trim()
+            txtUsuario.Text = usuario.Trim()
+            txtPass.Text = pass.Trim()
+            ddlTipoUsuarios.SelectedValue = tuser
+
+            btnEliminar.Visible = True
+            btnModificar.Visible = True
+            btnCrear.Visible = False
+            txtUsuario.ReadOnly = True
+        End If
+    End Sub
+
+    Protected Sub btnCrear_Click(sender As Object, e As EventArgs) Handles btnCrear.Click
+        Dim usuariosBO As AdminUsuariosBO = New AdminUsuariosBO(cadenaconexion)
+        Dim resultado As Boolean = False
+        Dim existe As Boolean = False
+
+        existe = usuariosBO.verificaUsuario(txtUsuario.Text)
+
+        If existe = True Then
+            txtNombre.Text = ""
+            txtPass.Text = ""
+            txtUsuario.Text = ""
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡ Advertencia!', '¡ Ya existe un usuario con ese código !', 'warning')", True)
+        Else
+
+            resultado = usuariosBO.ingresaUsuario(txtNombre.Text, Convert.ToInt32(ddlTipoUsuarios.SelectedValue.ToString()), txtUsuario.Text, txtPass.Text)
+
+            If resultado = True Then
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Finalizado!', '¡ Usuario creado !', 'success')", True)
+            Else
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', '¡ Erro al registrar la información !', 'error')", True)
+            End If
+
+            txtNombre.Text = ""
+            txtPass.Text = ""
+            txtUsuario.Text = ""
+
+            cargarUsuarios()
+        End If
+
+    End Sub
+
+    Protected Sub btnModificar_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnModificar.Click
+        Dim usuariosBO As AdminUsuariosBO = New AdminUsuariosBO(cadenaconexion)
+        Dim resultado As Boolean = False
+        Dim existe As Boolean = False
+        Dim codigo As String = ""
+
+        codigo = gvUsuarios.SelectedValue.ToString()
+
+        resultado = usuariosBO.modificarUsuario(txtNombre.Text, Convert.ToInt32(ddlTipoUsuarios.SelectedValue.ToString()), txtUsuario.Text, txtPass.Text, codigo)
+
+        If resultado = True Then
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Finalizado!', '¡ Información registrada correctamente!', 'success')", True)
+        Else
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', '¡Erro al registrar la información !', 'error')", True)
+        End If
+
+        txtNombre.Text = ""
+        txtPass.Text = ""
+        txtUsuario.Text = ""
+        ddlTipoUsuarios.SelectedValue = 1
+
+        btnEliminar.Visible = False
+        btnModificar.Visible = False
+        btnCrear.Visible = True
+        txtUsuario.ReadOnly = False
+        cargarUsuarios()
+    End Sub
+
+    Protected Sub btnEliminar_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnEliminar.Click
+        Dim usuariosBO As AdminUsuariosBO = New AdminUsuariosBO(cadenaconexion)
+        Dim codigo As String
+        Dim resultado As Boolean = False
+
+        codigo = gvUsuarios.SelectedRow.Cells(1).Text.ToString()
+
+        If String.IsNullOrEmpty(codigo) = False Then
+            resultado = usuariosBO.elimimarUsuario(codigo)
+            If resultado = True Then
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Finalizado!', '¡ Usuario eliminado !', 'success')", True)
+            Else
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', '¡Erro al registrar la información !', 'error')", True)
+            End If
+        Else
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡ Advertencia!', '¡ Debe seleccionar un usuario  !', 'warning')", True)
+        End If
+
+        txtNombre.Text = ""
+        txtPass.Text = ""
+        txtUsuario.Text = ""
+        ddlTipoUsuarios.SelectedValue = 1
+
+        btnEliminar.Visible = False
+        btnModificar.Visible = False
+        btnCrear.Visible = True
+        txtUsuario.ReadOnly = False
+        cargarUsuarios()
+
+    End Sub
+
+    Protected Sub btnCancelar_Click(sender As Object, e As EventArgs) Handles btnCancelar.Click
+        txtNombre.Text = ""
+        txtPass.Text = ""
+        txtUsuario.Text = ""
+        ddlTipoUsuarios.SelectedValue = 1
+
+        btnEliminar.Visible = False
+        btnModificar.Visible = False
+        btnCrear.Visible = True
+        txtUsuario.ReadOnly = False
+    End Sub
+
+    Protected Sub gvUsuarios_PageIndexChanging(ByVal sender As Object, ByVal e As System.Web.UI.WebControls.GridViewPageEventArgs) Handles gvUsuarios.PageIndexChanging
+        gvUsuarios.PageIndex = e.NewPageIndex
+        cargarUsuarios()
+    End Sub
+
+End Class

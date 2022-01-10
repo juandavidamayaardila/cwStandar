@@ -1,0 +1,259 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="GeoRecorridoVendedor.aspx.vb" Inherits="Mapas_GeoRecorridoVendedor" %>
+
+<%@ Register TagPrefix="CP" TagName="Filtros" Src="~/Filtros/FiltrosUsuariosUnaFecha.ascx" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <i class="fa fa-map" style="text-align: center;"></i>
+            </div>
+            <h1 class="page-header">
+                <small>Mapa de recorrido por vendedor</small>
+            </h1>
+            <div class="panel panel-default">
+                <%--<div class="panel-heading">Seleccionar cliente</div>--%>
+                <div class="panel-body">
+                    <div class=" table-responsive">
+                        <CP:Filtros ID="filtros" runat="server" />
+                        <table style="margin: auto;">
+                            <tr>
+                                <td colspan="3">
+                                    <div style="text-align: center">
+                                        <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div id="map"></div>
+                <div style="display: none;">
+                    <div id="divResumen" style="margin-right: 4px;">
+                        <div class="panel panel-default" style="margin-bottom: 4px;">
+                            <div class="panel-heading"><b>Resumen recorrido</b></div>
+                            <div class="panel-body" style="padding: 4px;">
+                                <div class="panel panel-default" style="margin-bottom: 1px;">
+                                    <table style="margin: auto;">
+                                        <tr>
+                                            <td><b>Vendedor: </b></td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="lblVendedor" runat="server" Font-Bold="false"></asp:Label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Ventas: </b></td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="lblVentas" runat="server" Font-Bold="false"></asp:Label>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><b>No compras: </b></td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="lblNoCompras" runat="server" Font-Bold="false"></asp:Label>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="2"><b>Venta recorrido: </b></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" style="text-align: right">
+                                                <asp:Label ID="lblValorRecaudado" runat="server" Font-Bold="false"></asp:Label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div id="legend" class="panel panel-default" style="margin-bottom: 4px">
+                                    <table style="margin: auto; table-layout: fixed;">
+                                        <tr>
+                                            <td style="text-align: center; width: 60px;">Inicio</td>
+                                            <td style="text-align: center; width: 60px;">Venta</td>
+                                            <td style="text-align: center; width: 60px;">No compra</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: center; width: 60px;">
+                                                <asp:Image ID="Image3" runat="server" ImageUrl="../Styles/icons/inicio.png" />
+                                            </td>
+                                            <td style="text-align: center; width: 60px;">
+                                                <asp:Image ID="Image1" runat="server" ImageUrl="../Styles/icons/VentaFactura.png" />
+                                            </td>
+                                            <td style="text-align: center; width: 60px;">
+                                                <asp:Image ID="Image4" runat="server" ImageUrl="../Styles/icons/NoCompra.png" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+    <%-- ----------------------------------------------------------------------------------------------------------------------------------- --%>
+    <%-- -------------------------------------------------------------Script Mapa----------------------------------------------------------- --%>
+    <%-- ----------------------------------------------------------------------------------------------------------------------------------- --%>
+    <script>
+        $(document).ready(function () {
+            initMap();
+        });
+
+        var map;
+
+        function initMap() {
+            if ("geolocation" in navigator) { //check geolocation available 
+                //try to get user current location using getCurrentPosition() method
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    console.log("Found your location nLat : " + position.coords.latitude + " nLang :" + position.coords.longitude);
+
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        center: { lat: position.coords.latitude, lng: position.coords.longitude },
+                        zoom: 7 //5 Zoom para la ubicación mostrando el pais
+                    });
+                });
+
+            } else {
+                console.log("Browser doesn't support geolocation!");
+            }
+        }
+
+        ////--------------------
+        // cliente, latitud, longitud, litros, recogio, numerodoc, icono
+        function initMapRecorrido(markers) {
+            console.log(markers)
+            var map;
+            var bounds = new google.maps.LatLngBounds();
+            var latlng;
+
+            for (i = 0; i < markers.length; i++) {
+                if (markers[i][0] != "0") {
+                    //enviamos longitud y latitud
+                    latlng = new google.maps.LatLng(parseFloat(markers[i][1]), parseFloat(markers[i][2]));
+                    break;
+                }
+            }
+
+            var mapOptions = {
+                zoom: 12,
+                center: latlng,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+
+            // Display a map on the web page
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
+            map.setTilt(50);
+
+            // cliente, latitud, longitud, litros, recogio, numerodoc, icono, novedad
+            var infoWindowContent = [];
+            for (i = 0; i < markers.length; i++) {
+
+                // cliente = 0  es  seguimiento
+                if (markers[i][0] != '0' && markers[i][3] == '1' && markers[i][12] == 'SIN REGISTRO') { // Inicio recorrido y ultimo punto registrado
+                    infoWindowContent.push(//'<span><b>Finca: </b>' + markers[i][0] + '</span></br>' +
+
+                                           '<span>Cliente: <b>' + markers[i][0] + '</b></span></br>' +
+                                            '<span>Vendedor: ' + markers[i][9].toString() + '</span></br>' +
+                                            '<span>Hora: ' + markers[i][10].toString() + '</span></br>' +
+                                            '<span><b>Novedad: </b>' + markers[i][6].toString() + '</span></br>' +
+                                            '<span><b>Valor neto: </b>' + markers[i][11].toString() + '</span></br>'
+
+                    );
+                } else if (markers[i][0] != '0' && markers[i][3] == '1' && markers[i][12] != 'SIN REGISTRO') {
+                    infoWindowContent.push(
+
+                                            '<span>Cliente: <b>' + markers[i][0] + '</b></span></br>' +
+                                             '<span>Vendedor: ' + markers[i][9].toString() + '</span></br>' +
+                                             '<span>Hora: ' + markers[i][11].toString() + '</span></br>' +
+                                             '<span><b>Novedad: </b>' + markers[i][6].toString() + '</span></br>' +
+                                             '<span><b>Valor neto: </b>' + markers[i][11].toString() + '</span></br>'
+
+                     );
+                }
+                else if (markers[i][0] != '0' && markers[i][3] == '0') { // Novedades del recorrido
+                    infoWindowContent.push('<span>' + markers[i][0] + '</span></br>' +
+                                            '<span>Vendedor: ' + markers[i][9].toString() + '</span></br>' +
+                                            '<span>Hora: ' + markers[i][10].toString() + '</span></br>'
+                    );
+                }
+            }
+
+            // Add multiple markers to map
+            var infoWindow = new google.maps.InfoWindow(), marker, i;
+            var poligono = [];
+
+            // Place each marker on the map  
+            // cliente, latitud, longitud, litros, recogio, numerodoc, icono
+            var contadorMarker = 0;
+            for (i = 0; i < markers.length; i++) {
+                // trazar las lineas de recorrido
+                poligono.push(new google.maps.LatLng(parseFloat(markers[i][1]), parseFloat(markers[i][2])));
+
+                if (markers[i][0] != '0') {   //marcas para clientes clientes,  si esta en 0 es coordenada de seguimiento
+
+                    var position = new google.maps.LatLng(parseFloat(markers[i][1]), parseFloat(markers[i][2]));
+                    bounds.extend(position);
+                    marker = new google.maps.Marker({
+                        position: position,
+                        map: map,
+                        title: markers[i][0],
+                        icon: markers[i][5],
+                        label: { text: markers[i][8], color: "white" }
+                    });
+
+                    // Add info window to marker    
+                    google.maps.event.addListener(marker, 'click', (function (marker, contadorMarker) { // contadorMarker puede ser = 1 si no se tiene coordenadas de seguimiento
+                        return function () {
+                            infoWindow.setContent(infoWindowContent[contadorMarker]);
+                            infoWindow.open(map, marker);
+                        }
+                    })(marker, contadorMarker));
+
+                    contadorMarker++;
+                    // Center the map to fit all markers on the screen
+                    // map.fitBounds(bounds);
+                }
+            }
+
+            // Set zoom level
+            var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function (event) {
+                this.setZoom(17);
+                google.maps.event.removeListener(boundsListener);
+            });
+
+
+            /* Método con las caracteristicas del poligono */
+            //miPoligono = new google.maps.Polygon({
+            //    paths: poligono,
+            //    strokeColor: "#0000dd",
+            //    strokeOpacity: 0.6,
+            //    strokeWeight: 3 //,
+            //    //fillColor: "#FF0000",
+            //    // fillOpacity: 0.4
+            //});
+            //miPoligono.setMap(map);
+
+            /* Método con las caracteristicas de las lineas */
+            var polyline = new google.maps.Polyline({
+                path: poligono
+                , map: map
+                , strokeColor: '#0000dd'
+                , strokeWeight: 3
+                , strokeOpacity: 0.6
+                , clickable: false
+            });
+            polyline.setMap(map);
+
+            var divResumen = document.getElementById('divResumen');
+
+            map.controls[google.maps.ControlPosition.RIGHT_TOP].push(divResumen);
+        }
+    </script>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</asp:Content>
+

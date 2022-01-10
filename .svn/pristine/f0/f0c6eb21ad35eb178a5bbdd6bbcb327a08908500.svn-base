@@ -1,0 +1,305 @@
+Namespace DataObject
+    Public Class PedidosVendedor
+
+
+        Private codigo As String
+        Public Property _codigo() As String
+            Get
+                Return codigo
+            End Get
+            Set(ByVal value As String)
+                codigo = value
+            End Set
+        End Property
+
+
+        Private documento As String
+        Public Property _documento() As String
+            Get
+                Return documento
+            End Get
+            Set(ByVal value As String)
+                documento = value
+            End Set
+        End Property
+
+
+        Private fecha As String
+        Public Property _fecha() As String
+            Get
+                Return fecha
+            End Get
+            Set(ByVal value As String)
+                fecha = value
+            End Set
+        End Property
+
+
+        Private valor As Double
+        Public Property _valor() As Double
+            Get
+                Return valor
+            End Get
+            Set(ByVal value As Double)
+                valor = value
+            End Set
+        End Property
+
+
+        Private cliente As String
+        Public Property _cliente() As String
+            Get
+                Return cliente
+            End Get
+            Set(ByVal value As String)
+                cliente = value
+            End Set
+        End Property
+
+
+        Private vendedor As String
+        Public Property _vendedor() As String
+            Get
+                Return vendedor
+            End Get
+            Set(ByVal value As String)
+                vendedor = value
+            End Set
+        End Property
+
+
+        Private establecimiento As String
+        Public Property _establecimiento() As String
+            Get
+                Return establecimiento
+            End Get
+            Set(ByVal value As String)
+                establecimiento = value
+            End Set
+        End Property
+
+
+        Private bloqueado As String
+        Public Property _bloqueado() As String
+            Get
+                Return bloqueado
+            End Get
+            Set(ByVal value As String)
+                bloqueado = value
+            End Set
+        End Property
+
+
+        Private telefonica As String
+        Public Property _telefonica() As String
+            Get
+                Return telefonica
+            End Get
+            Set(ByVal value As String)
+                telefonica = value
+            End Set
+        End Property
+
+
+        Private extraruta As String
+        Public Property _extraruta() As String
+            Get
+                Return extraruta
+            End Get
+            Set(ByVal value As String)
+                extraruta = value
+            End Set
+        End Property
+
+
+        Private pedidosap As String
+        Public Property _pedidosap() As String
+            Get
+                Return pedidosap
+            End Get
+            Set(ByVal value As String)
+                pedidosap = value
+            End Set
+        End Property
+
+        Private ESTADOBLOQUEO As String
+        Public Property _ESTADOBLOQUEO() As String
+            Get
+                Return ESTADOBLOQUEO
+            End Get
+            Set(ByVal value As String)
+                ESTADOBLOQUEO = value
+            End Set
+        End Property
+
+        Private ESTADORECHAZO As String
+        Public Property _ESTADORECHAZO() As String
+            Get
+                Return ESTADORECHAZO
+            End Get
+            Set(ByVal value As String)
+                ESTADORECHAZO = value
+            End Set
+        End Property
+        Private montofactbruto As Double
+        Public Property _montofactbruto() As Double
+            Get
+                Return montofactbruto
+            End Get
+            Set(ByVal value As Double)
+                montofactbruto = value
+            End Set
+        End Property
+
+        Private observacion As String
+        Public Property _observacion() As String
+            Get
+                Return observacion
+            End Get
+            Set(ByVal value As String)
+                observacion = value
+            End Set
+        End Property
+
+
+        Private nuevo As String
+        Public Property _nuevo() As String
+            Get
+                Return nuevo
+            End Get
+            Set(ByVal value As String)
+                nuevo = value
+            End Set
+        End Property
+
+
+        Private sincro As String
+        Public Property _sincro() As String
+            Get
+                Return sincro
+            End Get
+            Set(ByVal value As String)
+                sincro = value
+            End Set
+        End Property
+
+
+        Private ordencompra As String
+        Public Property _ordencompra() As String
+            Get
+                Return ordencompra
+            End Get
+            Set(ByVal value As String)
+                ordencompra = value
+            End Set
+        End Property
+
+
+        Private hora As String
+        Public Property _hora() As String
+            Get
+                Return hora
+            End Get
+            Set(ByVal value As String)
+                hora = value
+            End Set
+        End Property
+
+
+        Private tipoPedido As String
+        Public Property _tipoPedido() As String
+            Get
+                Return tipoPedido
+            End Get
+            Set(ByVal value As String)
+                tipoPedido = value
+            End Set
+        End Property
+
+
+        Private estadoDescuento As String
+        Public Property _estadoDescuento() As String
+            Get
+                Return estadoDescuento
+            End Get
+            Set(ByVal value As String)
+                estadoDescuento = value
+            End Set
+        End Property
+
+
+        Private aprueba As String
+        Public Property _aprueba() As String
+            Get
+                Return aprueba
+            End Get
+            Set(ByVal value As String)
+                aprueba = value
+            End Set
+        End Property
+
+
+        Private pedidoUNO As String
+        Public Property _pedidoUNO() As String
+            Get
+                Return pedidoUNO
+            End Get
+            Set(ByVal value As String)
+                pedidoUNO = value
+            End Set
+        End Property
+
+
+        Private linea As String
+        Public Property _linea() As String
+            Get
+                Return linea
+            End Get
+            Set(ByVal value As String)
+                linea = value
+            End Set
+        End Property
+
+        Private fechaSIESA As String
+        Public Property _fechaSIESA() As String
+            Get
+                Return fechaSIESA
+            End Get
+            Set(ByVal value As String)
+                fechaSIESA = value
+            End Set
+        End Property
+
+
+
+        Sub New(ByVal codigo As String, ByVal documento As String, ByVal fecha As String, ByVal valor As Double, ByVal cliente As String, _
+             ByVal vendedor As String, ByVal establecimiento As String, ByVal bloqueado As String, ByVal telefonica As String, ByVal extraruta As String, ByVal pedidosap As String, ByVal ESTADOBLOQUEO As String, ByVal ESTADORECHAZO As String, ByVal montofactbruto As Double, ByVal observacion As String, ByVal nuevo As String, ByVal sincro As String, ByVal ordencompra As String, ByVal hora As String, ByVal tipopedido As String, ByVal estadoDescuento As String, ByVal aprueba As String, ByVal pedidoUNO As String, ByVal linea As String, ByVal fechaSIESA As String)
+            Me.codigo = codigo
+            Me.documento = documento
+            Me.fecha = fecha
+            Me.valor = valor
+            Me.cliente = cliente
+            Me.vendedor = vendedor
+            Me.establecimiento = establecimiento
+            Me.bloqueado = bloqueado
+            Me.telefonica = telefonica
+            Me.extraruta = extraruta
+            Me.pedidosap = pedidosap
+            Me.ESTADOBLOQUEO = ESTADOBLOQUEO
+            Me.ESTADORECHAZO = ESTADORECHAZO
+            Me.montofactbruto = montofactbruto
+            Me.observacion = observacion
+            Me.nuevo = nuevo
+            Me.sincro = sincro
+            Me.ordencompra = ordencompra
+            Me.hora = hora
+            Me.tipoPedido = tipopedido
+            Me.estadoDescuento = estadoDescuento
+            Me.aprueba = aprueba
+            Me.pedidoUNO = pedidoUNO
+            Me.linea = linea
+            Me.fechaSIESA = fechaSIESA
+        End Sub
+
+    End Class
+End Namespace

@@ -1,0 +1,66 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="ClientesNuevos.aspx.vb" Inherits="Reportes_ClientesNuevos" %>
+
+<%@ Register Assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="asp" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<%@ Register TagPrefix="CP" TagName="Filtros" Src="~/Filtros/FiltrosUsuarios.ascx" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="updatepanel" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/informes.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Informe de clientes nuevos"></asp:Label></small>
+            </h1>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <CP:Filtros ID="filtros" runat="server" />
+                    <div style="text-align: center">
+                        <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" OnClick="btnAceptar_Click" CssClass="btn btn-primary" />
+                        <asp:Button ID="btnExportar" runat="server" Text="Exportar" OnClick="btnExportar_Click" CssClass="btn btn-info" />
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Lista de clientes nuevos"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive filtros" style="overflow: auto; max-height: 300px;">
+                        <asp:GridView ID="gvInforme" runat="server" CssClass="gvHeader filtrar hide-column"
+                            AllowPaging="True" AutoGenerateColumns="False" DataSourceID="SqlInforme" EnableModelValidation="True" PageSize="50">
+                            <Columns>
+                                <asp:BoundField DataField="codigoVendedor" HeaderText="Código" SortExpression="codigoVendedor" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="vendedor" HeaderText="Vendedor" SortExpression="vendedor" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="nombre" HeaderText="Cliente" SortExpression="nombre" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="Razonsocial" HeaderText="Razón social" SortExpression="Razonsocial" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="Nit" HeaderText="Nit" SortExpression="Nit" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="Direccion" HeaderText="Dirección" SortExpression="Direccion" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="Telefono" HeaderText="Teléfono" SortExpression="Telefono" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="FechaIngreso" HeaderText="Fecha de ingreso" SortExpression="FechaIngreso" ItemStyle-HorizontalAlign="Center" />
+                            </Columns>
+                        </asp:GridView>
+                        <asp:SqlDataSource ID="SqlInforme" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                            SelectCommand="ListaClientesNuevosSelProc" SelectCommandType="StoredProcedure">
+                            <SelectParameters>
+                                <asp:Parameter Name="fechainicial" Type="String" />
+                                <asp:Parameter Name="fechafinal" Type="String" />
+                                <asp:Parameter Name="usuario" Type="String" />
+                                <asp:Parameter Name="tipoUsuario" Type="String" />
+                                <asp:Parameter Name="gerenteRegional" Type="String" />
+                                <asp:Parameter Name="jefeVenta" Type="String" />
+                                <asp:Parameter Name="vendedor" Type="String" />
+                            </SelectParameters>
+                        </asp:SqlDataSource>
+                    </div>
+                </div>
+            </div>
+        </ContentTemplate>
+        <Triggers>
+            <asp:PostBackTrigger ControlID="btnExportar" />
+        </Triggers>
+    </asp:UpdatePanel>
+</asp:Content>
+

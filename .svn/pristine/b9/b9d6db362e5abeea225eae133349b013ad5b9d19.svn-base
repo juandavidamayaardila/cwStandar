@@ -1,0 +1,145 @@
+﻿Imports System.Data
+Imports System.Data.SqlClient
+Imports System.Drawing
+Imports System.IO
+Imports co.com.CeluwebEstandarFV.BussinesObject
+
+Partial Class Maestros_Vendedores
+    Inherits System.Web.UI.Page
+
+    Dim tabla As String = "Integracion_Vendedores"
+
+    Protected Sub Page_Load(sender As Object, e As EventArgs) Handles Me.Load
+        If IsPostBack = False Then
+            MessageDanger.Visible = False
+            MessageWarning.Visible = False
+            MessageSuccess.Visible = False
+
+            lblDanger.Text = ""
+            lblWarning.Text = ""
+            lblSuccess.Text = ""
+        End If
+    End Sub
+
+    Protected Sub btnEnviar_Click(sender As Object, e As EventArgs)
+        If archivo.HasFile Then
+            Dim extencion As String = System.IO.Path.GetExtension(archivo.FileName).ToLower()
+            ' cambiar nombre de archivo
+            Dim nombreArchivo As String = "Vendedores_" + Date.Now.ToString("yyyyMMddHHmmssf") + extencion.Trim()
+
+            If extencion = ".txt" Or extencion = ".csv" Then
+                ' validacion ruta donde se guardan los archivos
+                Dim rutaArchivosAdjuntos As String = Server.MapPath("~/Archivos/")
+                Dim Dir As DirectoryInfo = New DirectoryInfo(rutaArchivosAdjuntos)
+
+                If (Not Dir.Exists) Then
+                    Dir.Create()
+                End If
+
+                '--------------------------------------------------
+                archivo.PostedFile.SaveAs(rutaArchivosAdjuntos + "/" + nombreArchivo)
+                insertRegistros("/" + nombreArchivo)
+            Else
+                MessageSuccess.Visible = False
+                MessageWarning.Visible = True
+                MessageDanger.Visible = False
+                lblWarning.Text = "¡¡¡ El archivo debe tener extención .txt o .csv !!!"
+            End If
+        End If
+
+    End Sub
+
+    Sub insertRegistros(rutaArchivo As String)
+        Dim usuario As String = Session("usuario").ToString().Trim()
+        Dim i As Integer = 0
+        Dim separador As Char = ";"
+        Dim connectionString As String = ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString()
+        Dim consulta As MaestrosBO = New MaestrosBO(connectionString)
+
+        Try
+            Dim SR As StreamReader = New StreamReader(Server.MapPath("~/Archivos/" + rutaArchivo), System.Text.Encoding.UTF8)
+            'bodega,codigo,descripcion,precio,factor,iva,linea,unidadmedida
+            Dim line As String = SR.ReadLine()
+            Dim strArray() As String = line.Split(separador)
+            Dim dt As DataTable = New DataTable()
+
+            dt.Columns.Add("agencia")
+            dt.Columns.Add("codigo")
+            dt.Columns.Add("nombre")
+            dt.Columns.Add("cedula")
+
+            While Not String.IsNullOrEmpty(line)
+                ' agregar el campo usuario al inicio,
+                'line = usuario + separador + line
+                Dim Row As DataRow = dt.NewRow()
+                Dim itemArray() As String = line.Split(separador)
+
+                Row.ItemArray = itemArray
+                dt.Rows.Add(Row)
+                i = i + 1
+                line = SR.ReadLine()
+            End While
+
+            SR.Close()
+            SR.Dispose()
+
+            Dim respuesta As String = ""
+
+            ' ELIMINAR REGISTROS TABLA TEMPORAL
+            If consulta.deleteTemporal(tabla) Then
+
+                '  COPIAR ARCHIVO A TABLA DE INTEGRACION
+                respuesta = consulta.insertTable(dt, tabla)
+                If respuesta.Equals("OK") Then
+
+                    ' COPIAR TABLA DE INTEGRACION A TABLA PRODUCCION
+                    respuesta = consulta.copiarInformacion(tabla)
+                    If respuesta.Equals("OK") Then
+                        MessageSuccess.Visible = True
+                        MessageWarning.Visible = False
+                        MessageDanger.Visible = False
+                        lblSuccess.Text = "Información registrada correctamente!!"
+                    Else
+                        MessageSuccess.Visible = False
+                        MessageWarning.Visible = False
+                        MessageDanger.Visible = True
+                        lblDanger.Text = "Error al registrar información: " + respuesta
+                    End If
+
+                Else
+                    MessageSuccess.Visible = False
+                    MessageWarning.Visible = False
+                    MessageDanger.Visible = True
+                    lblDanger.Text = "Error al insertar la información, por favor revise la estructura del archivo: " + respuesta
+                End If
+            Else
+                MessageSuccess.Visible = False
+                MessageWarning.Visible = False
+                MessageDanger.Visible = True
+                lblDanger.Text = "Error al registrar información tmp!!"
+            End If
+
+        Catch ex As Exception
+            MessageSuccess.Visible = False
+            MessageWarning.Visible = False
+            MessageDanger.Visible = True
+            lblDanger.Text = "Error al leer el archivo!!!"
+        End Try
+
+        gvInforme.DataBind()
+    End Sub
+
+    Protected Sub btnEjemploMaestra_Click(sender As Object, e As EventArgs)
+        Dim rutaArchivo As String = Server.MapPath("~/MaestrosEstructurasEjemplos/EjemploMaestrasVendedores.csv")
+
+        Response.Clear()
+        Response.Buffer = True
+        Response.ContentType = "application/vnd.ms-excel"
+        Response.AddHeader("Content-Disposition", "attachment;filename=EjemploMaestrasVendedores.csv")
+        Response.Charset = "UTF-8"
+        Response.ContentEncoding = Encoding.[Default]
+        Response.WriteFile(rutaArchivo)
+        Response.End()
+    End Sub
+
+End Class

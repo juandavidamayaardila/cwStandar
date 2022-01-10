@@ -1,0 +1,46 @@
+﻿
+Imports co.com.CeluwebEstandarFV.BussinesObject
+
+
+Partial Class Pedidos_PedidoWebVendedorCliente
+    Inherits System.Web.UI.Page
+
+    Protected Sub Page_Load(sender As Object, e As EventArgs) Handles Me.Load
+        If IsPostBack = False Then
+
+        End If
+    End Sub
+
+    Protected Sub btnAceptar_Click(sender As Object, e As EventArgs) Handles btnAceptar.Click
+        Dim preventa As Boolean = False
+        Dim cadenaconexion As String = ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString()
+        Dim adminUsuariosBO As AdminUsuariosBO = New AdminUsuariosBO(cadenaconexion)
+        Dim vendedor As String
+
+        vendedor = filtros.vendedor
+        preventa = adminUsuariosBO.validarTipoVendedor(vendedor)
+
+        cargarListaClientes()
+    End Sub
+
+    Sub cargarListaClientes()
+        Dim codUsuario As String = Session("codigousuario").ToString.Trim
+        Dim tipo As String = Session("tipo").ToString.Trim
+
+        dsListaClientes.SelectParameters("usuario").DefaultValue = codUsuario
+        dsListaClientes.SelectParameters("tipoUsuario").DefaultValue = tipo
+        dsListaClientes.SelectParameters("gerenteRegional").DefaultValue = filtros.gerenteRegional
+        dsListaClientes.SelectParameters("jefeVenta").DefaultValue = filtros.jefeVentas
+        dsListaClientes.SelectParameters("vendedor").DefaultValue = filtros.vendedor
+
+        gvListaClientes.DataBind()
+    End Sub
+
+    Protected Sub gvListaClientes_SelectedIndexChanged(sender As Object, e As EventArgs) Handles gvListaClientes.SelectedIndexChanged
+        Dim codCliente As String = ""
+
+        codCliente = gvListaClientes.SelectedRow.Cells(1).Text.ToString()
+
+        Response.Redirect("RegistrarPedidoWeb.aspx?cliente=" + codCliente)
+    End Sub
+End Class

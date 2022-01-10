@@ -1,0 +1,178 @@
+﻿Imports co.com.CeluwebEstandarFV.BussinesObject
+
+Partial Class Pedidos_RegistrarPedidoWeb
+    Inherits System.Web.UI.Page
+    Private cadenaConexion As String
+    Private pedidosVendedorBO As PedidosVendedorBO
+    Private GranIva As Double = 0
+    Private GranSubtotal As Double = 0
+    Private GranTotalVenta As Double = 0
+    Protected Sub Page_Load(sender As Object, e As EventArgs) Handles Me.Load
+        cadenaConexion = ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString()
+        pedidosVendedorBO = New PedidosVendedorBO(cadenaConexion)
+
+        If Page.IsPostBack = False Then
+
+            Dim cliente As String = Request.Params("cliente").ToString()
+
+            dsPerfilCliente.SelectParameters("codigoCliente").DefaultValue = cliente
+            dlPerfilCliente.DataBind()
+
+            dsListaProductosBuscquedaSelProc.SelectParameters("codCliente").DefaultValue = cliente
+            dsListaProductosBuscquedaSelProc.SelectParameters("linea").DefaultValue = "-1"
+            dsListaProductosBuscquedaSelProc.SelectParameters("producto").DefaultValue = "-1"
+            dlListaProductos.DataBind()
+
+            cargaDetalle()
+        End If
+    End Sub
+    Sub cargaDetalle()
+        dsListaDetalleTmp.SelectParameters("usuario").DefaultValue = Session("codigousuario").ToString.Trim
+        dsListaDetalleTmp.SelectParameters("tipoUsuario").DefaultValue = Session("tipo").ToString.Trim
+        dsListaDetalleTmp.SelectParameters("codCliente").DefaultValue = Request.Params("cliente").ToString()
+        gvDetalleVenta.DataBind()
+    End Sub
+
+    Protected Sub dlListaProductos_ItemCommand(source As Object, e As DataListCommandEventArgs)
+        Dim usuario As String = ""
+        Dim tipoUsuario As Integer
+        Dim codigoCliente As String = ""
+        Dim codProducto As String = ""
+        Dim cantidad As Integer
+
+        If e.CommandName = "agregar" Then
+            codProducto = e.CommandArgument.ToString().Trim()
+            cantidad = Convert.ToInt32(CType(e.Item.FindControl("txtCantidad"), TextBox).Text.ToString())
+
+            If cantidad > 0 Then
+                Dim registro As Boolean = False
+
+                usuario = Session("codigousuario").ToString.Trim
+                tipoUsuario = Session("tipo").ToString.Trim
+                codigoCliente = Request.Params("cliente").ToString()
+
+                registro = pedidosVendedorBO.ingresarDetallePedidoWebTmp(usuario, tipoUsuario, codigoCliente, codProducto, cantidad)
+
+                If registro = False Then
+                    ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', '¡ Erro al registrar la información !', 'error')", True)
+                End If
+            Else
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡ Advertencia!', '¡ Debe ingresar una cantidad mayor a 0 !', 'warning')", True)
+            End If
+
+            cargaDetalle()
+        End If
+    End Sub
+
+    Protected Sub gvDetalleVenta_RowDataBound(sender As Object, e As GridViewRowEventArgs)
+        Dim filas As Integer = gvDetalleVenta.Rows.Count
+
+        Try
+            If (e.Row.RowType = DataControlRowType.DataRow) Then
+                Dim descuentoCliente As String = e.Row.Cells(4).Text.ToString.Trim.Replace("%", "").Replace(" ", "")
+                Dim iva As String = e.Row.Cells(5).Text.ToString.Trim.Replace("%", "").Replace(" ", "")
+                Dim valor As String = e.Row.Cells(6).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+
+                GranIva = (GranIva + Convert.ToDouble(valor) * Convert.ToDouble(iva))
+                GranSubtotal = (GranSubtotal + Convert.ToDouble(valor))
+                GranTotalVenta = (GranTotalVenta + Convert.ToDouble(valor) + Convert.ToDouble(valor) * Convert.ToDouble(iva) - Convert.ToDouble(valor) * Convert.ToDouble(descuentoCliente))
+            End If
+
+            lblTotalIva.Text = "Iva = " + GranIva.ToString("$ 0,0")
+            lblSubtotal.Text = "Subtotal = " + GranSubtotal.ToString("$ 0,0")
+            lblTotalVenta.Text = "Total = " + GranTotalVenta.ToString("$ 0,0")
+
+        Catch ex As Exception
+            Dim resultado As String = ex.Message
+        End Try
+    End Sub
+
+    Protected Sub gvDetalleVenta_SelectedIndexChanged(sender As Object, e As EventArgs)
+        Dim usuario As String = ""
+        Dim tipoUsuario As Integer
+        Dim codigoCliente As String = ""
+        Dim codProducto As String = ""
+
+        usuario = Session("codigousuario").ToString.Trim
+        tipoUsuario = Session("tipo").ToString.Trim
+        codigoCliente = Request.Params("cliente").ToString()
+        codProducto = gvDetalleVenta.SelectedValue.ToString()
+
+        Try
+            pedidosVendedorBO.EliminarDetalleProductoTmpWeb(usuario, tipoUsuario, codigoCliente, codProducto)
+        Catch ex As Exception
+            Dim mensaje As String = ex.Message
+        End Try
+
+        cargaDetalle()
+    End Sub
+
+    Protected Sub btnFiltrar_Click(sender As Object, e As EventArgs) Handles btnFiltrar.Click
+        Dim cliente As String = Request.Params("cliente").ToString()
+        Dim lineaBusqueda As String = ddlLineaVenta.SelectedValue.ToString()
+        Dim producto As String = txtBuscarProducto.Text.Trim.ToString()
+
+        If producto = "" Then
+            producto = "-1"
+        End If
+
+        dsListaProductosBuscquedaSelProc.SelectParameters("codCliente").DefaultValue = cliente
+        dsListaProductosBuscquedaSelProc.SelectParameters("linea").DefaultValue = lineaBusqueda
+        dsListaProductosBuscquedaSelProc.SelectParameters("producto").DefaultValue = producto
+        dlListaProductos.DataBind()
+    End Sub
+
+    Protected Sub btnRegistrar_Click(sender As Object, e As EventArgs) Handles btnRegistrar.Click
+        registrarPedido()
+    End Sub
+
+    Sub registrarPedido()
+        Dim registro As Boolean = False
+        Dim usuario As String
+        Dim tipoUsuario As Integer
+        Dim codigoCliente As String
+
+        usuario = Session("codigousuario").ToString.Trim
+        tipoUsuario = Session("tipo").ToString.Trim
+        codigoCliente = Request.Params("cliente").ToString()
+
+        registro = pedidosVendedorBO.RegistrarPedidoWeb(usuario, tipoUsuario, codigoCliente)
+
+        If registro = True Then
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Finalizado!', '¡ Información registrada correctamente!', 'success')", True)
+        Else
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', '¡ Erro al registrar la información !', 'error')", True)
+        End If
+
+        cargaDetalle()
+    End Sub
+
+    Protected Sub btnCancelar_Click(sender As Object, e As EventArgs) Handles btnCancelar.Click
+        limpiaDetalle()
+        volver()
+    End Sub
+    Sub limpiaDetalle()
+        Dim registro As Boolean = False
+        Dim usuario As String
+        Dim tipoUsuario As Integer
+        Dim codigoCliente As String
+
+        usuario = Session("codigousuario").ToString.Trim
+        tipoUsuario = Session("tipo").ToString.Trim
+        codigoCliente = Request.Params("cliente").ToString()
+
+        registro = pedidosVendedorBO.EliminarDetalleTmpWeb(usuario, tipoUsuario, codigoCliente)
+
+        If registro = True Then
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Finalizado!', '¡ Pedido eliminado !', 'success')", True)
+        Else
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', '¡ Erro al registrar la información  !', 'error')", True)
+        End If
+
+        cargaDetalle()
+    End Sub
+
+    Sub volver()
+        Response.Redirect("PedidoWebVendedorCliente.aspx")
+    End Sub
+End Class

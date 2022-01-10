@@ -1,0 +1,69 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="PedidoWebVendedorCliente.aspx.vb"
+    Inherits="Pedidos_PedidoWebVendedorCliente" %>
+
+<%@ Register Assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="asp" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<%@ Register TagPrefix="CP" TagName="Filtros" Src="~/Filtros/FiltrosUsuariosSinFecha.ascx" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/pedidos.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Pedido Web"></asp:Label>
+                </small>
+            </h1>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Seleccionar cliente"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class=" table-responsive">
+                        <CP:Filtros ID="filtros" runat="server" />
+                        <div style="text-align: center">
+                            <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Lista de clientes"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive filtros" style="overflow: auto; max-height: 400px;">
+                        <asp:GridView ID="gvListaClientes" runat="server" CssClass="gvHeader filtrar hide-column" AutoGenerateColumns="False"
+                            DataSourceID="dsListaClientes" EnableModelValidation="True">
+                            <Columns>
+                                <asp:CommandField HeaderText="Tomar pedido" ShowSelectButton="True" SelectImageUrl="~/Styles/icons/listar.png" ButtonType="Image" ItemStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="codCliente" HeaderText="Código" SortExpression="codCliente" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="nomCliente" HeaderText="Nombre del cliente" ReadOnly="True" SortExpression="nomCliente" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="razonSocial" HeaderText="Razón social" ReadOnly="True" SortExpression="razonSocial" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="direccion" HeaderText="Dirección" ReadOnly="True" SortExpression="direccion" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="ciudad" HeaderText="Ciudad" ReadOnly="True" SortExpression="ciudad" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="nit" HeaderText="Nit" ReadOnly="True" SortExpression="nit" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="codVendedor" HeaderText="Código vendedor" ReadOnly="True" SortExpression="codVendedor" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="codigoAmarre" HeaderText="Código amarre" ReadOnly="True" SortExpression="codigoAmarre" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="agencia" HeaderText="Agencia" ReadOnly="True" SortExpression="agencia" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="canal" HeaderText="Canal" ReadOnly="True" SortExpression="canal" ItemStyle-HorizontalAlign="Right" />
+                            </Columns>
+                        </asp:GridView>
+                        <asp:SqlDataSource ID="dsListaClientes" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ListaClientesSelProc" SelectCommandType="StoredProcedure">
+                            <SelectParameters>
+                                <asp:Parameter Name="usuario" Type="String" />
+                                <asp:Parameter Name="tipoUsuario" Type="String" />
+                                <asp:Parameter Name="gerenteRegional" Type="String" />
+                                <asp:Parameter Name="jefeVenta" Type="String" />
+                                <asp:Parameter Name="vendedor" Type="String" />
+                            </SelectParameters>
+                        </asp:SqlDataSource>
+                    </div>
+                </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+</asp:Content>
+

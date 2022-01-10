@@ -1,0 +1,70 @@
+﻿Imports co.com.CeluwebEstandarFV.BussinesObject
+Imports System.Web.Script.Serialization
+
+Partial Class Mapas_GeoRecorridoVendedor
+    Inherits System.Web.UI.Page
+    Dim cadenaConexion As String
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+
+        cadenaConexion = ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString()
+
+        If IsPostBack = False Then
+
+        End If
+    End Sub
+    Protected Sub btnAceptar_Click(sender As Object, e As EventArgs) Handles btnAceptar.Click
+        mostrarRecorrido()
+        'cargaDetalles()
+    End Sub
+
+    Sub mostrarRecorrido()
+        Dim fecha As String = filtros.fecha
+        Dim codUsuario As String = Session("codigousuario").ToString.Trim
+        Dim tipoUsuario As String = Session("tipo").ToString.Trim
+        Dim gerenteOficina As String = filtros.gerenteRegional
+        Dim jefeVenta As String = filtros.jefeVentas
+        Dim vendedor As String = filtros.vendedor
+
+        If filtros.vendedor = "-1" Then
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Advertencia!', '¡ Debe seleccionar un vendedor !', 'warning')", True)
+        Else
+            Try
+                Dim coordenadasBO As CoordenadasBO = New CoordenadasBO(cadenaConexion)
+                Dim ubicacion As List(Of List(Of String)) = New List(Of List(Of String))()
+                Dim serializer As New JavaScriptSerializer()
+                Dim arrayJson As String
+
+                ubicacion = coordenadasBO.obtenerRecorridoVendedorMapa(fecha, vendedor)
+
+                arrayJson = serializer.Serialize(ubicacion)
+                If ubicacion.ToArray.Length = 0 Then
+                    ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Mensaje!', '¡ No hay datos que mostrar !', 'warning')", True)
+                End If
+
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "initMapRecorrido(" & arrayJson.ToString() & ");", True)
+                mostrarTotal()
+            Catch ex As Exception
+                Dim resultado As String = ex.Message
+            End Try
+        End If
+    End Sub
+
+    Sub mostrarTotal()
+        Dim fechaInicial As String = filtros.fecha
+        Dim codUsuario As String = Session("codigousuario").ToString.Trim
+        Dim tipoUsuario As String = Session("tipo").ToString.Trim
+        Dim gerenteOficina As String = filtros.gerenteRegional
+        Dim jefeVenta As String = filtros.jefeVentas
+        Dim vendedor As String = filtros.vendedor
+        Dim coordenadasBO As CoordenadasBO = New CoordenadasBO(cadenaConexion)
+        Dim totales As List(Of String) = New List(Of String)()
+
+        totales = coordenadasBO.totalRecorridoVendedorMapa(fechaInicial, vendedor)
+        If totales.ToArray.Length > 0 Then
+            lblVendedor.Text = totales(0)
+            lblVentas.Text = totales(1)
+            lblNoCompras.Text = totales(2)
+            lblValorRecaudado.Text = totales(3)
+        End If
+    End Sub
+End Class

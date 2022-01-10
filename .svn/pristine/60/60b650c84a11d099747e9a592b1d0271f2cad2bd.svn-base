@@ -1,0 +1,99 @@
+﻿Imports System.Data.SqlClient
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports co.com.CeluwebEstandarFV.BussinesObject
+
+Namespace BussinesObject
+    Public Class CatalogoBO
+        Dim _cadenaConexion As String
+        Dim comando As SqlCommand
+        Dim reader As SqlDataReader
+        Dim conexion As Conexion
+        Sub New(ByVal cadenaConexion As String)
+            Me._cadenaConexion = cadenaConexion
+        End Sub
+
+        Function listaImagenesProductosCatalogo(ByVal linea As String) As List(Of String)
+            Dim imagenes As List(Of String) = New List(Of String)
+            Dim imagen As String
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "listaImagenesProductosCatalogoSelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@linea", linea)
+                conexion.openConexion()
+
+                reader = comando.ExecuteReader()
+
+                If reader.HasRows Then
+                    While reader.Read
+                        imagen = reader("imagen").ToString
+
+                        imagenes.Add(imagen)
+                    End While
+                End If
+
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return imagenes
+
+        End Function
+
+        Function ingresaProductoCatalogo(ByVal codProducto As String) As Boolean
+            Dim ingreso As Boolean = False
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "ingresaProductoCatalogoInsProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@codProducto", codProducto.Trim())
+                conexion.openConexion()
+                ingreso = comando.ExecuteNonQuery() > 0
+                ingreso = True
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+
+            End Try
+
+            Return ingreso
+        End Function
+
+        Function eliminaProductoCatalogo(ByVal url As String) As Boolean
+            Dim ingreso As Boolean = False
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "eliminaProductoCatalogoDelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@url", url.Trim())
+                conexion.openConexion()
+                ingreso = comando.ExecuteNonQuery() > 0
+                ingreso = True
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+
+            End Try
+
+            Return ingreso
+        End Function
+
+    End Class
+
+End Namespace
+

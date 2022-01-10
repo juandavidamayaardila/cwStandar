@@ -1,0 +1,266 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="RegistrarPedidoWeb.aspx.vb" Inherits="Pedidos_RegistrarPedidoWeb" %>
+
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/pedidos.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Registrar Pedido Web"></asp:Label>
+                </small>
+            </h1>
+            <%-- ------------------------------------------------------------ --%>
+            <%-- Panel factura --%>
+            <%-- ------------------------------------------------------------ --%>
+            <div class="col-lg-8 col-xs-12" runat="server">
+                <%-- Div datos cliente --%>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <asp:Label runat="server" Text="Perfil del Cliente"></asp:Label>
+                    </div>
+                    <div class="panel-body">
+                        <div class=" table-responsive">
+                            <asp:DataList ID="dlPerfilCliente" runat="server" DataSourceID="dsPerfilCliente" ItemStyle-Font-Size="11px">
+                                <ItemTemplate>
+                                    <div>
+                                        <span>
+                                            <b>
+                                                <asp:Label runat="server" Text="Código"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="codigoLabel" runat="server" Text='<%# Eval("codigo") %>' Font-Bold="false" />
+                                            &emsp;
+                                            <b>
+                                                <asp:Label runat="server" Text="Nombre"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="nombreClienteLabel" runat="server" Text='<%# Eval("nombre") %>' Font-Bold="false" />
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span>
+                                            <b>
+                                                <asp:Label runat="server" Text="Nit"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="nitLabel" runat="server" Text='<%# Eval("nit") %>' Font-Bold="false" />
+                                            &emsp;
+                                            <b>
+                                                <asp:Label runat="server" Text="Razón social"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="razonSocialLabel" runat="server" Text='<%# Eval("razonsocial") %>' Font-Bold="false" />
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span>
+                                            <b>
+                                                <asp:Label runat="server" Text="Dirección"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="direccionLabel" runat="server" Text='<%# Eval("direccion") %>' Font-Bold="false" />
+                                            &emsp;
+                                            <b>
+                                                <asp:Label runat="server" Text="Ciudad"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="ciudadLabel" runat="server" Text='<%# Eval("ciudad") %>' Font-Bold="false" />
+                                            &emsp;
+                                            <b>
+                                                <asp:Label runat="server" Text="Teléfono"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="telefonoLabel" runat="server" Text='<%# Eval("telefono") %>' Font-Bold="false" />
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span>
+                                            <b>
+                                                <asp:Label runat="server" Text="Código vendedor"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="codVendedorLabel" runat="server" Text='<%# Eval("codVendedor") %>' Font-Bold="false" />
+                                            &emsp;
+                                            <b>
+                                                <asp:Label runat="server" Text="Vendedor"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="vendedorLabel" runat="server" Text='<%# Eval("vendedor") %>' Font-Bold="false" />
+                                            &emsp;
+                                            <b>
+                                                <asp:Label runat="server" Text="Lista precios"></asp:Label>:
+                                            </b>
+                                            <asp:Label ID="listaPrecioLabel" runat="server" Text='<%# Eval("listaprecio") %>' Font-Bold="false" />
+                                        </span>
+                                    </div>
+                                </ItemTemplate>
+                            </asp:DataList>
+                            <asp:SqlDataSource ID="dsPerfilCliente" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="PerfilClienteSelProc"
+                                SelectCommandType="StoredProcedure">
+                                <SelectParameters>
+                                    <asp:Parameter Name="codigoCliente" Type="String" />
+                                </SelectParameters>
+                            </asp:SqlDataSource>
+                        </div>
+                    </div>
+                </div>
+                <%-- Div detalle pedidos --%>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <asp:Label runat="server" Text="Detalle del pedido"></asp:Label>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive" style="overflow: auto; max-height: 200px;">
+                            <asp:GridView ID="gvDetalleVenta" runat="server" AutoGenerateColumns="False" DataSourceID="dsListaDetalleTmp" EnableModelValidation="True"
+                                CssClass="gvHeader" DataKeyNames="id" OnRowDataBound="gvDetalleVenta_RowDataBound" OnSelectedIndexChanged="gvDetalleVenta_SelectedIndexChanged">
+                                <Columns>
+                                    <asp:BoundField DataField="codigo" HeaderText="Código" SortExpression="codigo" ItemStyle-HorizontalAlign="Left" />
+                                    <asp:BoundField DataField="descripcion" HeaderText="Producto" ReadOnly="True" SortExpression="descripcion" ItemStyle-HorizontalAlign="Left" />
+                                    <asp:BoundField DataField="cantidad" HeaderText="Cantidad" SortExpression="cantidad" ItemStyle-HorizontalAlign="Right" />
+                                    <asp:BoundField DataField="precio" HeaderText="Precio" SortExpression="precio" DataFormatString="{0:c}" ItemStyle-HorizontalAlign="Right" />
+                                    <asp:BoundField DataField="descuentoCliente" HeaderText="Descuento cliente" ReadOnly="True" SortExpression="descuentoCliente" DataFormatString="{0:p}" ItemStyle-HorizontalAlign="Right" />
+                                    <asp:BoundField DataField="iva" HeaderText="Iva" ReadOnly="True" SortExpression="iva" DataFormatString="{0:p}" ItemStyle-HorizontalAlign="Right" />
+                                    <asp:BoundField DataField="subTotal" HeaderText="SubTotal" SortExpression="subTotal" DataFormatString="{0:c}" ItemStyle-HorizontalAlign="Right" />
+                                    <asp:CommandField ShowSelectButton="True" HeaderText="Eliminar" ItemStyle-HorizontalAlign="Center" SelectImageUrl="~/Styles/icons/borrar.png" ButtonType="Image" />
+                                </Columns>
+                            </asp:GridView>
+                            <asp:SqlDataSource ID="dsListaDetalleTmp" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ListaDetalleWebTmpSelProc"
+                                SelectCommandType="StoredProcedure">
+                                <SelectParameters>
+                                    <asp:Parameter Name="usuario" Type="String" />
+                                    <asp:Parameter Name="tipoUsuario" Type="Int32" />
+                                    <asp:Parameter Name="codCliente" Type="String" />
+                                </SelectParameters>
+                            </asp:SqlDataSource>
+                        </div>
+                        <div class="col-lg-3 col-sm-push-3">
+                            <div class="panel panel-success">
+                                <div class="panel-heading" style="text-align: right">
+                                    <asp:Label ID="lblTotalIva" runat="server" Font-Bold="true" Font-Size="Smaller"></asp:Label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-push-3">
+                            <div class="panel panel-info">
+                                <div class="panel-heading" style="text-align: right">
+                                    <asp:Label ID="lblSubtotal" runat="server" Font-Bold="true" Font-Size="Smaller"></asp:Label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-push-3">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading" style="text-align: right">
+                                    <asp:Label ID="lblTotalVenta" runat="server" Font-Bold="true" Font-Size="Smaller"></asp:Label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <%-- ------------------------------------------------------------ --%>
+            <%-- Panel productos --%>
+            <%-- ------------------------------------------------------------ --%>
+            <div class="col-lg-4 col-xs-12" runat="server">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <asp:Label runat="server" Text="Registro de productos"></asp:Label>
+                    </div>
+                    <div class="panel-body">
+                        <table style="margin: auto; font-size: 10px;">
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Linea"></asp:Label>
+                                </td>
+                                <td>
+                                    <asp:DropDownList ID="ddlLineaVenta" runat="server" CssClass="form-control" DataSourceID="dsLineaProducto" DataTextField="linea"
+                                        DataValueField="codLinea" Width="100px">
+                                    </asp:DropDownList>
+                                    <asp:SqlDataSource ID="dsLineaProducto" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                                        SelectCommand="LineasProductosDdlSelProc" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
+                                </td>
+                                <td>
+                                    <asp:Label runat="server" Text="Producto"></asp:Label>
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txtBuscarProducto" runat="server" CssClass="form-control" Width="100px"></asp:TextBox>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;" colspan="4">
+                                    <asp:Button ID="btnFiltrar" runat="server" Text="Filtrar" CssClass="btn btn-primary btn-xs" />
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="panel-body">
+                            <div class="table-responsive" style="overflow: auto; max-height: 300px;">
+                                <asp:DataList runat="server" ID="dlListaProductos" DataSourceID="dsListaProductosBuscquedaSelProc" Width="99%" Font-Size="9px"
+                                    DataKeyField="codProducto" OnItemCommand="dlListaProductos_ItemCommand">
+                                    <ItemTemplate>
+                                        <div class="panel panel-default panel-info">
+                                            <div class="panel-body">
+                                                <div class="col-lg-2">
+                                                    <asp:Image ID="imgUrl" runat="server" ImageUrl='<%# Eval("url")%>' CssClass="imagenListaProductoWeb" />
+                                                </div>
+                                                <div class="col-lg-10">
+                                                    <div>
+                                                        <span>
+                                                            <b>
+                                                                <asp:Label runat="server" Text="Producto"></asp:Label>:
+                                                            </b>
+                                                            <asp:Label ID="Label4" runat="server" Text='<%# Eval("codProducto")%>' Font-Bold="false" />
+                                                            <asp:Label ID="Label1" runat="server" Text='<%# Eval("producto")%>' Font-Bold="false" />
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <b>
+                                                                <asp:Label runat="server" Text="Precio"></asp:Label>:
+                                                            </b>
+                                                            <asp:Label ID="Label2" runat="server" Text='<%# Eval("precio")%>' Font-Bold="false" />
+                                                            &emsp;
+                                                            <b>
+                                                                <asp:Label runat="server" Text="Iva"></asp:Label>:
+                                                            </b>
+                                                            <asp:Label ID="Label5" runat="server" Text='<%# Eval("iva")%>' Font-Bold="false" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12">
+                                                    <table style="margin: auto;">
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    <asp:Label runat="server" Text="Cantidad"></asp:Label>:
+                                                                </b>
+                                                            </td>
+                                                            <td>
+                                                                <asp:TextBox ID="txtCantidad" runat="server" CssClass="form-control" Text="0" Width="50px"></asp:TextBox>
+                                                                <cc1:FilteredTextBoxExtender ID="FilteredTextBoxExtender3" runat="server" TargetControlID="txtCantidad"
+                                                                    FilterType="Numbers" />
+                                                            </td>
+                                                            <td>
+                                                                <asp:Button ID="btnAgregar" runat="server" Text="Agregar"
+                                                                    CssClass="btn btn-success btn-xs" CommandName="agregar" CommandArgument='<%#Eval("codProducto") %>' />
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ItemTemplate>
+                                </asp:DataList>
+                                <asp:SqlDataSource ID="dsListaProductosBuscquedaSelProc" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ListaProductoPedidoSelProc" SelectCommandType="StoredProcedure">
+                                    <SelectParameters>
+                                        <asp:Parameter Name="codCliente" Type="String" />
+                                        <asp:Parameter Name="linea" Type="String" />
+                                        <asp:Parameter Name="producto" Type="String" />
+                                    </SelectParameters>
+                                </asp:SqlDataSource>
+                            </div>
+                        </div>
+                        <div style="text-align: center">
+                            <asp:Button ID="btnRegistrar" runat="server" Text="Registrar Pedido" CssClass="btn btn-success" />
+                            <asp:Button ID="btnCancelar" runat="server" Text="Cancelar Pedido" CssClass="btn btn-danger" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+
+</asp:Content>
+

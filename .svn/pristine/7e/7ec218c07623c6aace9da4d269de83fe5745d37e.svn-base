@@ -1,0 +1,169 @@
+Imports System.Collections.Generic
+Imports System.Data.SqlClient
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports co.com.CeluwebEstandarFV.DataObject
+
+Namespace BussinesObject
+
+    Public Class PedidosRealizadosBO
+        Dim _cadenaConexion As String
+        Dim comando As SqlCommand
+        Dim reader As SqlDataReader
+        Dim conexion As Conexion
+        Dim comando1 As SqlCommand
+        Dim reader1 As SqlDataReader
+        Dim conexion1 As Conexion
+        Dim filas As Integer = -1
+
+        Sub New(ByVal cadenaConexion As String)
+            Me._cadenaConexion = cadenaConexion
+
+        End Sub
+
+        Function ConsultarGraficaEfectividadPastel(ByVal fechaIncial As String, ByVal fechaFinal As String, ByVal tipo As String, ByVal codusuario As String, ByVal gerenteRegional As String, ByVal supervisor As String, ByVal codVendedor As String) As List(Of List(Of String))
+
+            Dim grafica As List(Of List(Of String)) = New List(Of List(Of String))()
+            Dim motivo As List(Of String) = New List(Of String)()
+            Dim cantidad As List(Of String) = New List(Of String)()
+            Dim consulta As String = "PedidosRealizadoGraficaEfectividadPastel"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@fechainicial", fechaIncial)
+                comando.Parameters.AddWithValue("@fechafinal", fechaFinal)
+                comando.Parameters.AddWithValue("@usuario", codusuario)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipo)
+                comando.Parameters.AddWithValue("@gerenteRegional", gerenteRegional)
+                comando.Parameters.AddWithValue("@jefeVenta", supervisor)
+                comando.Parameters.AddWithValue("@vendedor", codVendedor)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                While reader.Read()
+
+                    cantidad.Add(reader("cantidad"))
+                    motivo.Add(reader("motivo"))
+
+                End While
+
+                grafica.Add(motivo)
+                grafica.Add(cantidad)
+
+                conexion.CloseConexion()
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return grafica
+
+        End Function
+
+        Function ConsultarGraficaVendedorVentaTotal(ByVal fechaIncial As String, ByVal fechaFinal As String, ByVal tipo As String, ByVal codusuario As String, ByVal gerenteRegional As String, ByVal supervisor As String, ByVal codVendedor As String) As List(Of List(Of String))
+
+            Dim grafica As List(Of List(Of String)) = New List(Of List(Of String))()
+            Dim vendedor As List(Of String) = New List(Of String)()
+            Dim cantidad As List(Of String) = New List(Of String)()
+            Dim consulta As String = "TotalPedidosVendedorGraficaBarras"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@fechainicial", fechaIncial)
+                comando.Parameters.AddWithValue("@fechafinal", fechaFinal)
+                comando.Parameters.AddWithValue("@usuario", codusuario)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipo)
+                comando.Parameters.AddWithValue("@gerenteRegional", gerenteRegional)
+                comando.Parameters.AddWithValue("@jefeVenta", supervisor)
+                comando.Parameters.AddWithValue("@vendedor", codVendedor)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                While reader.Read()
+
+                    vendedor.Add(reader("vendedor"))
+                    cantidad.Add(reader("cantidad"))
+
+                End While
+
+                grafica.Add(vendedor)
+                grafica.Add(cantidad)
+
+                conexion.CloseConexion()
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return grafica
+
+        End Function
+
+        Function ConsultarGraficaTop10ventas(ByVal fechaIncial As String, ByVal fechaFinal As String, ByVal tipo As String, ByVal codusuario As String, ByVal gerenteRegional As String, ByVal supervisor As String, ByVal codVendedor As String) As List(Of List(Of String))
+
+            Dim grafica As List(Of List(Of String)) = New List(Of List(Of String))()
+            Dim vendedor As List(Of String) = New List(Of String)()
+            Dim ventas As List(Of String) = New List(Of String)()
+            Dim consulta As String = "TotalVentasTop10GraficaBarras"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@fechainicial", fechaIncial)
+                comando.Parameters.AddWithValue("@fechafinal", fechaFinal)
+                comando.Parameters.AddWithValue("@usuario", codusuario)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipo)
+                comando.Parameters.AddWithValue("@gerenteRegional", gerenteRegional)
+                comando.Parameters.AddWithValue("@jefeVenta", supervisor)
+                comando.Parameters.AddWithValue("@vendedor", codVendedor)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                While reader.Read()
+
+                    vendedor.Add(reader("vendedor"))
+                    ventas.Add(reader("ventas"))
+
+                End While
+
+                grafica.Add(vendedor)
+                grafica.Add(ventas)
+
+                conexion.CloseConexion()
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return grafica
+
+        End Function
+
+    End Class
+
+End Namespace

@@ -1,0 +1,84 @@
+﻿Imports System.Collections.Generic
+Imports System.Data.SqlClient
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports co.com.CeluwebEstandarFV.DataObject
+
+Namespace BussinesObject
+    Public Class GeneralBO
+        Dim _cadenaConexion As String
+        Dim comando As SqlCommand
+        Dim reader As SqlDataReader
+        Dim conexion As Conexion
+        Dim comando1 As SqlCommand
+        Dim reader1 As SqlDataReader
+        Dim conexion1 As Conexion
+        Dim comando2 As SqlCommand
+        Dim reader2 As SqlDataReader
+        Dim conexion2 As Conexion
+
+        Sub New(ByVal cadenaConexion As String)
+            Me._cadenaConexion = cadenaConexion
+
+        End Sub
+        'InsertarEncabezadoPresupuesto
+        Function fotoHabeasData(ByVal documento As String, ByVal resultado As Boolean) As Byte()
+            Dim foto As Byte()
+            Dim resp As Integer = 0
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "BuscaFotoHabeasDataSelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@documento", documento)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                If reader.HasRows Then
+                    While reader.Read
+                        foto = reader("imagen")
+                        resultado = True
+                    End While
+                End If
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return foto
+        End Function
+        Function validarAccesoWeb(ByVal url As String, ByVal tipoUsuario As String) As Boolean
+            Dim valido As Boolean = False
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "validarAccesoWebSelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@url", url)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipoUsuario)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                If reader.HasRows Then
+                    valido = True
+                End If
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return valido
+        End Function
+
+    End Class
+
+End Namespace

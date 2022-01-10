@@ -1,0 +1,86 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="Clientes.aspx.vb" Inherits="Maestros_Clientes" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <div class="panel-heading-icon">
+        <img src="../styles/icons/carga_maestra.png" />
+    </div>
+    <h1 class="page-header">
+        <small>
+            <asp:Label runat="server" Text="Maestra de clientes"></asp:Label>
+        </small>
+    </h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Cargar clientes
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive" style="text-align: center;">
+                <asp:FileUpload ID="archivo" runat="server" />
+                <asp:Button ID="btnEnviar" runat="server" Text="Subir Archivo" CssClass="btn btn-success" OnClick="btnEnviar_Click" ValidationGroup="ciudad" />
+                <asp:Button ID="btnEjemploMaestra" runat="server" Text="Archivo Ejemplo" CssClass="btn btn-info" OnClick="btnEjemploMaestra_Click" />
+                <%-----------------------------%>
+                <%-- Ventanas de información --%>
+                <%-----------------------------%>
+                <div id="MessageDanger" visible="false" runat="server" class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>
+                        <asp:Label runat="server" ID="lblDanger"></asp:Label></strong>
+                </div>
+                <div id="MessageWarning" visible="false" runat="server" class="alert alert-warning alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>
+                        <asp:Label runat="server" ID="lblWarning"></asp:Label></strong>
+                </div>
+                <div id="MessageSuccess" visible="false" runat="server" class="alert alert-success alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>
+                        <asp:Label runat="server" ID="lblSuccess"></asp:Label></strong>
+                </div>
+                <%-----------------------------%>
+                <%-----------------------------%>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">Lista de clientes</div>
+        <div class="panel-body">
+            <div class="table-responsive filtros" style="overflow: auto; max-height: 300px;">
+                <asp:GridView ID="gvInforme" runat="server" CssClass="gvHeader filtrar hide-column" AutoGenerateColumns="False"
+                    DataSourceID="SqlInforme" DataKeyNames="Codigo,Vendedor,sucursal" AllowPaging="true" PageSize="150">
+                    <Columns>
+                        <asp:BoundField DataField="filas" HeaderText="#" ReadOnly="True" SortExpression="filas" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Codigo" HeaderText="Código" ReadOnly="True" SortExpression="Codigo" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Nombre" HeaderText="Nombre" SortExpression="Nombre" ItemStyle-HorizontalAlign="Left" />
+                        <asp:BoundField DataField="Razonsocial" HeaderText="Razón social" SortExpression="Razonsocial" ItemStyle-HorizontalAlign="Left" />
+                        <asp:BoundField DataField="Nit" HeaderText="Nit" SortExpression="Nit" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Direccion" HeaderText="Dirección" SortExpression="Direccion" ItemStyle-HorizontalAlign="Left" />
+                        <asp:BoundField DataField="Ciudad" HeaderText="Ciudad" SortExpression="Ciudad" ItemStyle-HorizontalAlign="Left" />
+                        <asp:BoundField DataField="Telefono" HeaderText="Teléfono" SortExpression="Telefono" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Vendedor" HeaderText="Vendedor" ReadOnly="True" SortExpression="Vendedor" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="FechaIngreso" HeaderText="Fecha de ingreso" SortExpression="FechaIngreso" ItemStyle-HorizontalAlign="Center" />
+                        <asp:BoundField DataField="Canal" HeaderText="Canal" SortExpression="Canal" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Subcanal" HeaderText="Subcanal" SortExpression="Subcanal" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Cupo" HeaderText="Cupo" SortExpression="Cupo" ItemStyle-HorizontalAlign="Right" DataFormatString="{0:c}" />
+                        <asp:BoundField DataField="Plazo" HeaderText="Plazo" SortExpression="Plazo" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Ica" HeaderText="Ica" SortExpression="Ica" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Agencia" HeaderText="Agencia" SortExpression="Agencia" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Bloqueado" HeaderText="Bloqueado" SortExpression="Bloqueado" ItemStyle-HorizontalAlign="Center" />
+                        <asp:BoundField DataField="Retencion" HeaderText="Retención" SortExpression="Retencion" ItemStyle-HorizontalAlign="Center" />
+                        <asp:BoundField DataField="codigoLista" HeaderText="Código lista" SortExpression="codigoLista" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="tipoCliente" HeaderText="Tipo cliente" SortExpression="tipoCliente" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="latitud" HeaderText="Latitud" SortExpression="latitud" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="longitud" HeaderText="Longitud" SortExpression="longitud" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="sucursal" HeaderText="Sucursal" ReadOnly="True" SortExpression="sucursal" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="tipoCicloVisita" HeaderText="Ciclo visita" SortExpression="tipoCicloVisita" ItemStyle-HorizontalAlign="Right" />
+                    </Columns>
+                </asp:GridView>
+                <asp:SqlDataSource ID="SqlInforme" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                    SelectCommand="ListaClientesMaestrasSelProc" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('input[type="file"]').prettyFile();
+    </script>
+</asp:Content>
+

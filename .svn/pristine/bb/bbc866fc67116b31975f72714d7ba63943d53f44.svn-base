@@ -1,0 +1,231 @@
+﻿Imports System.Collections.Generic
+Imports System.Data.SqlClient
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports co.com.CeluwebEstandarFV.DataObject
+
+Namespace BussinesObject
+
+    Public Class PresupuestoBO
+
+        Dim _cadenaConexion As String
+        Dim comando As SqlCommand
+        Dim reader As SqlDataReader
+        Dim conexion As Conexion
+        Dim comando1 As SqlCommand
+        Dim reader1 As SqlDataReader
+        Dim conexion1 As Conexion
+        Dim comando2 As SqlCommand
+        Dim reader2 As SqlDataReader
+        Dim conexion2 As Conexion
+
+        Sub New(ByVal cadenaConexion As String)
+            Me._cadenaConexion = cadenaConexion
+
+        End Sub
+        'InsertarEncabezadoPresupuesto
+        Function ExistePresupuesto(ByVal year As String, ByVal month As String, ByVal vendedor As String, ByVal dias As String) As Integer
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Dim resp As Integer = 0
+            Try
+                comando.CommandText = "ExistePresupuestoSelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@year", year)
+                comando.Parameters.AddWithValue("@month", month)
+                comando.Parameters.AddWithValue("@vendedor", vendedor)
+                comando.Parameters.AddWithValue("@dias", dias)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                If reader.HasRows Then
+                    While reader.Read
+                        resp = reader("existe")
+                    End While
+                End If
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return resp
+
+        End Function
+
+        Function InsertarEncabezadoPresupuesto(ByVal year As String, ByVal month As String, ByVal vendedor As String, ByVal dias As String, ByVal doc As String) As Boolean
+
+            Dim ingreso As Boolean = False
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "InsertarEncabezadoPresupuestoInsProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@year", year)
+                comando.Parameters.AddWithValue("@month", month)
+                comando.Parameters.AddWithValue("@vendedor", vendedor)
+                comando.Parameters.AddWithValue("@dias", dias)
+                comando.Parameters.AddWithValue("@doc", doc)
+
+                conexion.openConexion()
+                ingreso = comando.ExecuteNonQuery() > 0
+                ingreso = True
+
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return ingreso
+
+        End Function
+
+        Function InsertarDetallePresupuesto(documento As String, linea As String, valor As String) As Boolean
+
+            Dim ingreso As Boolean = False
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "InsertarDetallePresupuestoInsProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@linea", linea)
+                comando.Parameters.AddWithValue("@valor", valor)
+                comando.Parameters.AddWithValue("@documento", documento)
+
+                conexion.openConexion()
+                ingreso = comando.ExecuteNonQuery() > 0
+                ingreso = True
+
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+            Return ingreso
+
+        End Function
+
+        Function DeleteItem(codigo As String) As Boolean
+
+            Dim delete As Boolean = False
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "EliminarItemPresupuestoDelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@id", codigo)
+
+                conexion.openConexion()
+                delete = comando.ExecuteNonQuery() > 0
+                delete = True
+
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return delete
+
+        End Function
+
+        Function UpdateRegistro(doc As String, valor As String, linea As String) As Boolean
+
+            Dim upd As Boolean = False
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "UpdRegistroPresupuestoSelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@id", doc)
+                comando.Parameters.AddWithValue("@valor", valor)
+                comando.Parameters.AddWithValue("@linea", linea)
+
+                conexion.openConexion()
+                upd = comando.ExecuteNonQuery() > 0
+                upd = True
+
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return upd
+
+        End Function
+
+        Function UpdEncabezadoPresupuesto(doc As String, valor As String) As Boolean
+
+            Dim upd As Boolean = False
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "UpdEncabezadoUpdProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@doc", doc)
+
+                conexion.openConexion()
+                upd = comando.ExecuteNonQuery() > 0
+                upd = True
+
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return upd
+
+        End Function
+
+        Function deletePresupuesto(documento As String) As Boolean
+
+            Dim delete As Boolean = False
+
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "EliminarPresupuestoDelProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@documento", documento)
+
+                conexion.openConexion()
+                delete = comando.ExecuteNonQuery() > 0
+                delete = True
+
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return delete
+
+        End Function
+
+    End Class
+
+End Namespace
+

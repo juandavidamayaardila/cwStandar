@@ -1,0 +1,140 @@
+﻿Imports System.Collections.Generic
+Imports co.com.CeluwebEstandarFV.DataObject
+Imports co.com.CeluwebEstandarFV.BussinesObject
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports System.Drawing
+Imports System.Drawing.Drawing2D
+Imports System.Data.SqlClient
+Imports System.IO
+Imports System.Web.Script.Serialization
+Imports System.Web
+
+Partial Class Reportes_Recorrido
+    Inherits System.Web.UI.Page
+
+    Private GranTotal As Double = 0
+    Private GranTotalBruto As Double = 0
+    Private cadenaConexion As String
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        cadenaConexion = ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString()
+        If IsPostBack = False Then
+
+        End If
+    End Sub
+
+    Sub graficarRecorrido()
+        Dim fechainicial As String = filtros.fechaInicial
+        Dim fechafinal As String = filtros.fechaFinal
+        Dim gerenteRegional As String = filtros.gerenteRegional
+        Dim supervisor As String = filtros.jefeVentas
+        Dim vendedor As String = filtros.vendedor
+        Dim codUsuario As String = Session("codigousuario").ToString.Trim
+        Dim tipoUsuario As String = Session("tipo").ToString.Trim
+        Dim datosGrafica As List(Of List(Of String)) = New List(Of List(Of String))()
+        Dim pedidosRealizadosBO As PedidosRealizadosBO = New PedidosRealizadosBO(cadenaConexion)
+
+        datosGrafica = pedidosRealizadosBO.ConsultarGraficaEfectividadPastel(fechainicial, fechafinal, tipoUsuario, codUsuario, gerenteRegional, supervisor, vendedor)
+
+        Dim serializer As New JavaScriptSerializer()
+        Dim arrayJson As String = serializer.Serialize(datosGrafica)
+        'return arrayJson.ToString();
+        ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "iniciar(" & arrayJson.ToString() & ");", True)
+    End Sub
+
+    Sub exporta()
+        Dim sb As StringBuilder = New StringBuilder()
+        Dim sw As StringWriter = New StringWriter(sb)
+        Dim htw As HtmlTextWriter = New HtmlTextWriter(sw)
+        Dim pagina As Page = New Page
+        Dim form As HtmlForm = New HtmlForm
+        gvRecorrido.EnableViewState = False
+        pagina.EnableEventValidation = False
+        pagina.DesignerInitialize()
+        pagina.Controls.Add(form)
+        form.Controls.Add(gvRecorrido)
+        pagina.RenderControl(htw)
+        Response.Clear()
+        Response.Buffer = True
+        Response.ContentType = "application/vnd.ms-excel"
+        Response.AddHeader("Content-Disposition", "attachment;filename=Recorrido Vendedor.xls")
+        Response.Charset = "UTF-8"
+
+        Response.ContentEncoding = Encoding.Default
+        Response.Write(sb.ToString())
+        Response.End()
+    End Sub
+
+    Protected Sub gvRecorrido_RowDataBound(ByVal sender As Object, ByVal e As GridViewRowEventArgs)
+        Dim cantPedidos As Integer = 0
+
+        For Each row As GridViewRow In gvRecorrido.Rows
+            cantPedidos = cantPedidos + 1
+        Next
+
+        Try
+            If (e.Row.RowType = DataControlRowType.DataRow) Then
+                Dim total As String = e.Row.Cells(5).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                'Dim totalBruto As String = e.Row.Cells(7).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+
+                If Not String.IsNullOrEmpty(total) Then
+                    GranTotal = (GranTotal + Convert.ToDouble(total))
+                    'GranTotalBruto = (GranTotalBruto + Convert.ToDouble(totalBruto))
+                End If
+            End If
+            If (e.Row.RowType = DataControlRowType.Footer) Then
+                'e.Row.Cells(7).Text = GranTotalBruto.ToString("$ 0,0")
+                e.Row.Cells(5).Text = GranTotal.ToString("$ 0,0")
+                e.Row.Cells(4).Text = "Cantidad: " & cantPedidos
+                e.Row.Cells(3).Text = "Total"
+            End If
+        Catch ex As Exception
+            Dim resultado As String = ex.Message
+        End Try
+    End Sub
+
+    Protected Sub btnAceptar_Click(sender As Object, e As EventArgs) Handles btnAceptar.Click
+        cargarDatos()
+    End Sub
+
+    Sub cargarDatos()
+        dsListaRecorridoVendedor.SelectParameters("fechainicial").DefaultValue = filtros.fechaInicial
+        dsListaRecorridoVendedor.SelectParameters("fechafinal").DefaultValue = filtros.fechaFinal
+        dsListaRecorridoVendedor.SelectParameters("usuario").DefaultValue = Session("codigousuario").ToString.Trim
+        dsListaRecorridoVendedor.SelectParameters("tipoUsuario").DefaultValue = Session("tipo")
+        dsListaRecorridoVendedor.SelectParameters("gerenteRegional").DefaultValue = filtros.gerenteRegional
+        dsListaRecorridoVendedor.SelectParameters("jefeVenta").DefaultValue = filtros.jefeVentas
+        dsListaRecorridoVendedor.SelectParameters("vendedor").DefaultValue = filtros.vendedor
+
+        gvRecorrido.DataBind()
+        graficarRecorrido()
+    End Sub
+
+    Protected Sub btnExportar_Click(sender As Object, e As EventArgs) Handles btnExportar.Click
+        exporta()
+    End Sub
+
+    Protected Sub gvRecorrido_SelectedIndexChanged(sender As Object, e As EventArgs) Handles gvRecorrido.SelectedIndexChanged
+        Dim documento As String = ""
+        Dim foto As Byte()
+        Dim recorridoBO As RecorridoBO = New RecorridoBO(cadenaconexion)
+        Dim resultado As Boolean = False
+
+        documento = gvRecorrido.SelectedValue.ToString()
+        foto = recorridoBO.fotoNovedad(documento, resultado)
+
+        If resultado Then
+            mpPanelFoto.Show()
+            Image.Src = "data:image/jpg;base64," & Convert.ToBase64String(CType(foto, Byte()))
+        Else
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡ Advertencia!', '¡ No hay foto para la novedad !', 'warning')", True)
+        End If
+
+        graficarRecorrido()
+    End Sub
+
+    Protected Sub bCloseFoto_Click(sender As Object, e As EventArgs) Handles bCloseFoto.Click
+        mpPanelFoto.Hide()
+        graficarRecorrido()
+    End Sub
+End Class

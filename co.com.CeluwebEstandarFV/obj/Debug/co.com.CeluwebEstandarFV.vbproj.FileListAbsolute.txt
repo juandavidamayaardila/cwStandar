@@ -1,0 +1,10 @@
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\bin\Debug\co.com.CeluwebEstandarFV.dll
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\bin\Debug\co.com.CeluwebEstandarFV.pdb
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\bin\Debug\co.com.CeluwebEstandarFV.xml
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\obj\Debug\co.com.CeluwebEstandarFV.Resources.resources
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\obj\Debug\co.com.CeluwebEstandarFV.vbproj.GenerateResource.Cache
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\obj\Debug\co.com.CeluwebEstandarFV.dll
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\obj\Debug\co.com.CeluwebEstandarFV.xml
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\obj\Debug\co.com.CeluwebEstandarFV.pdb
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\obj\Debug\co.com.CeluwebEstandarFV.vbproj.AssemblyReference.cache
+C:\Users\CW-DV-JDAA\Documents\Visual Studio 2013\Projects\cwStandar\co.com.CeluwebEstandarFV\obj\Debug\co.com.CeluwebEstandarFV.vbproj.CoreCompileInputs.cache

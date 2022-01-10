@@ -1,0 +1,249 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/menu.master" EnableEventValidation="false" AutoEventWireup="true" CodeFile="AdminPresupuesto.aspx.vb" Inherits="Administracion_AdminPresupuesto" %>
+
+<%@ Register Assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="AjaxControlToolkit" %>
+
+<%@ Register Assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="asp" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/gestion.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Administración de Presupuesto"></asp:Label>
+                </small>
+            </h1>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Crear presupuesto"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class=" table-responsive">
+                        <table style="margin: auto;">
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Año"></asp:Label>:
+                                </td>
+                                <td colspan="2">
+                                    <asp:DropDownList ID="ddlYear" runat="server" DataSourceID="dsYear" DataTextField="value" DataValueField="year" CssClass='form-control'>
+                                    </asp:DropDownList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Mes"></asp:Label>:
+                                </td>
+                                <td colspan="2">
+                                    <asp:DropDownList ID="ddlMonth" runat="server" DataSourceID="dsMonth" DataTextField="MonthName" DataValueField="MonthNumber" CssClass='form-control'>
+                                    </asp:DropDownList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Vendedor"></asp:Label>:
+                                </td>
+                                <td colspan="2">
+                                    <asp:DropDownList ID="ddlVendedores" runat="server" DataSourceID="dsTiposUsuarios" DataTextField="nombre"
+                                        DataValueField="codigo" CssClass='form-control' Width="196px" AppendDataBoundItems="true">
+                                    </asp:DropDownList>
+                                    <asp:SqlDataSource ID="dsTiposUsuarios" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                                        SelectCommand="select codigo,(codigo+'-'+nombre) as nombre from vendedores WHERE nombre != '' AND nombre !='* Sin nombre*' ORDER BY nombre asc"></asp:SqlDataSource>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Días"></asp:Label>:
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txtDia" runat="server" CssClass='form-control' Width="50px"></asp:TextBox>
+                                </td>
+                                <td>
+                                    <cc1:FilteredTextBoxExtender ID="FilteredTextBoxExtender2" runat="server" TargetControlID="txtDia"
+                                        FilterType="Numbers" />
+                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator2" runat="server" ControlToValidate="txtDia"
+                                        ErrorMessage=" * "></asp:RequiredFieldValidator>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align: center">
+                                    <asp:Button ID="btnCrear" runat="server" Text="Crear" CssClass="btn btn-success" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Lista de presupuestos"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive filtros" style="overflow: auto; max-height: 300px;">
+                        <asp:GridView ID="gvUsuarios" runat="server" AllowPaging="True" AutoGenerateColumns="False" CssClass="gvHeader filtrar hide-column"
+                            DataSourceID="dsUsuarios" DataKeyNames="documento" OnSelectedIndexChanged="gvUsuarios_SelectedIndexChanged">
+                            <Columns>
+                                <asp:CommandField ShowSelectButton="True" HeaderText="Modificar" SelectImageUrl="~/Styles/icons/editar.png" ButtonType="Image" ItemStyle-HorizontalAlign="Center" />
+                                <asp:CommandField ShowDeleteButton="True" HeaderText="Eliminar" DeleteImageUrl="~/Styles/icons/borrar.png" ButtonType="Image" ItemStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="vendedor" HeaderText="Vendedor" InsertVisible="False" ReadOnly="True" SortExpression="vendedor" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="nombre" HeaderText="Nombre" SortExpression="nombre" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="Año" HeaderText="Año" SortExpression="Año" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="Mes" HeaderText="Mes" SortExpression="Mes" ItemStyle-HorizontalAlign="Right" />
+                                <asp:BoundField DataField="FechaRegistro" HeaderText="Fecha de registro" SortExpression="FechaRegistro" ItemStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="presupuesto" HeaderText="Presupuesto total" SortExpression="presupuesto" DataFormatString="{0:c}" ItemStyle-HorizontalAlign="Right" />
+                            </Columns>
+                        </asp:GridView>
+                    </div>
+                </div>
+                <asp:SqlDataSource ID="dsUsuarios" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                    SelectCommand="SELECT  Vendedor,Año,Mes,FechaRegistro,Presupuestototal presupuesto,v.nombre, documento FROM presupuestovendedor LEFT JOIN vendedores v ON presupuestovendedor.vendedor = v.codigo "
+                    DeleteCommand="EliminarPresupuestoDelProc" DeleteCommandType="StoredProcedure"></asp:SqlDataSource>
+            </div>
+
+            <!--PANEL DE REQUERIMIENTOS-->
+            <asp:Panel ID="panelResumen" runat="server" CssClass="modalPopUp">
+                <div>
+                    <asp:Button ID="bCloseResumen" runat="server" CssClass="buttonPopUp" CausesValidation="false" />
+                </div>
+                <br />
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <asp:Label runat="server" Text="Agregar presupuesto lineas"></asp:Label>
+                    </div>
+                    <div class="panel-body">
+                        <table style="margin: auto;">
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Seleccionar linea"></asp:Label>:
+                                </td>
+                                <td>
+                                    <asp:DropDownList ID="ddlLineaAdd" AppendDataBoundItems="true" runat="server" DataSourceID="dsLineaAdd" DataTextField="nombre" DataValueField="codigo" CssClass='form-control'>
+                                    </asp:DropDownList>
+                                    <asp:SqlDataSource ID="dsLineaAdd" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="select  codigo,(codigo +'-'+nombre)nombre  from lineas"></asp:SqlDataSource>
+                                </td>
+                                <td>
+                                    <asp:RequiredFieldValidator ID="validatorLineAdd" runat="server" ControlToValidate="ddlLineaAdd" InitialValue="-1"
+                                        ErrorMessage=" * " Visible="false" ValidationGroup="popup"></asp:RequiredFieldValidator>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Ingresar valor"></asp:Label>:
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txtValor" runat="server" CssClass='form-control'></asp:TextBox>
+                                </td>
+                                <td>
+                                    <cc1:FilteredTextBoxExtender ID="FilteredTextBoxExtender1" runat="server" TargetControlID="txtValor"
+                                        FilterType="Numbers" />
+                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ErrorMessage="Campo requerido"
+                                        ForeColor="Red" Font-Size="9px" ControlToValidate="txtValor" ValidationGroup="popup"></asp:RequiredFieldValidator>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="text-align: center;">
+                            <asp:Button ID="ButtonAgregar" runat="server" CausesValidation="true" Text="Agregar"
+                                Visible="true" CssClass="btn btn-success btn-xs" />
+                            <asp:Button ID="ButtonActualizar" runat="server" CausesValidation="true" Text="Actualizar"
+                                Visible="false" CssClass="btn btn-success btn-xs" />
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <asp:Label runat="server" Text="Lineas"></asp:Label>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive" style="overflow: auto; max-height: 300px;">
+                            <asp:GridView ID="gvdetalle" runat="server" CssClass="gvHeader" DataSourceID="dsDetalle" OnRowCommand="gvdetalle_RowCommand" EnableModelValidation="True"
+                                AutoGenerateColumns="False" DataKeyNames="id" ShowFooter="True" OnRowDataBound="gvdetalle_RowDataBound" FooterStyle-HorizontalAlign="Left">
+                                <Columns>
+                                    <asp:TemplateField HeaderText="#" ItemStyle-HorizontalAlign="Center">
+                                        <ItemTemplate>
+                                            <asp:Label runat="server" Text='<%# Container.DataItemIndex%>'></asp:Label>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="Editar" SortExpression="icono" ItemStyle-HorizontalAlign="Center">
+                                        <ItemTemplate>
+                                            <asp:ImageButton ID="btnEditar" runat="server" CausesValidation="False" CommandName="editar"
+                                                ToolTip="Canal" CommandArgument='<%# Container.DataItemIndex %>' ImageUrl="~/Styles/icons/editar.png" />
+                                        </ItemTemplate>
+                                        <ItemStyle Wrap="False" />
+                                    </asp:TemplateField>
+                                    <asp:BoundField DataField="id" HeaderText="Id" ReadOnly="True" SortExpression="id" InsertVisible="False" ItemStyle-HorizontalAlign="Left" />
+                                    <asp:BoundField DataField="vendedor" HeaderText="Vendedor" SortExpression="vendedor" ItemStyle-HorizontalAlign="Left" />
+                                    <asp:BoundField DataField="documento" HeaderText="Documento" SortExpression="documento" ItemStyle-HorizontalAlign="Left" />
+                                    <asp:BoundField DataField="codLinea" HeaderText="Linea" SortExpression="codLinea" ItemStyle-HorizontalAlign="Left" />
+                                    <asp:BoundField DataField="presupuestoLinea" HeaderText="Presupuesto" SortExpression="presupuestoLinea" DataFormatString="{0:c}" ItemStyle-HorizontalAlign="Left" />
+                                    <asp:BoundField DataField="fechaRegistro" HeaderText="Fecha de registro" SortExpression="fechaRegistro" ItemStyle-HorizontalAlign="Left" />
+                                    <asp:TemplateField HeaderText="Eliminar" SortExpression="icono" ItemStyle-HorizontalAlign="Center">
+                                        <ItemTemplate>
+                                            <asp:ImageButton ID="btnEliminar" runat="server" CausesValidation="False" CommandName="eliminar"
+                                                ToolTip="Canal" CommandArgument='<%#Eval("Id") %>' ImageUrl="~/Styles/icons/borrar.png" />
+                                        </ItemTemplate>
+                                        <ItemStyle Wrap="False" />
+                                    </asp:TemplateField>
+                                </Columns>
+                                <FooterStyle CssClass="gvHeader-footer" />
+                            </asp:GridView>
+                            <asp:SqlDataSource ID="dsDetalle" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="consultarPresupuestoVendedorSelProc" SelectCommandType="StoredProcedure">
+                                <SelectParameters>
+                                    <asp:Parameter Name="documento" Type="String" />
+                                </SelectParameters>
+                            </asp:SqlDataSource>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <asp:Button ID="ButtonAgregarPresupuesto" runat="server" CausesValidation="False" Text="Finalizar"
+                        Visible="true" CssClass="btn btn-success btn-xs" />
+                    <asp:Button ID="ButtonCancelar" runat="server" CausesValidation="False" Text="Cancelar"
+                        Visible="true" CssClass="btn btn-danger btn-xs" />
+                </div>
+            </asp:Panel>
+            <asp:HiddenField ID="hfShowResumen" runat="server" />
+            <asp:HiddenField ID="hfHideResumen" runat="server" />
+            <cc1:ModalPopupExtender ID="mpPanelResumen" runat="server" PopupControlID="panelResumen"
+                TargetControlID="hfShowResumen" BackgroundCssClass="FondoModal" CancelControlID="hfHideResumen">
+            </cc1:ModalPopupExtender>
+            <asp:SqlDataSource ID="dsYear" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                SelectCommand="WITH    yearlist
+                                              AS ( SELECT   2015 AS year
+                                                   UNION ALL
+                                                   SELECT   yl.year + 1 AS year
+                                                   FROM     yearlist yl
+                                                   WHERE    yl.year + 1 &lt;= YEAR('2030')
+                                                 )
+                                        SELECT  YEAR value, year
+                                        FROM    yearlist
+                                        ORDER BY year asc;"></asp:SqlDataSource>
+            <asp:SqlDataSource ID="dsMonth" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                SelectCommand="SET LANGUAGE spanish;
+                            with cte as
+                            (
+                                select 
+                                0 AS Inc,
+                                DATENAME(mm,'2003-03-01') AS [MonthName],
+                                DATEPART(mm,'2003-03-01') AS [MonthNumber],
+                                DATEPART(yy,'2003-03-01') as [MonthYear]
+                                UNION ALL
+                                select
+                                 inc+1,
+                                 DATENAME(mm,DATEADD(mm,inc+1, '2003-03-01')),
+                                 DATEPART(mm,DATEADD(mm,inc+1, '2003-03-01')),
+                                 DATEPART(yy, DATEADD(mm,inc+1, '2003-03-01')) 
+                                FROM cte
+                                where inc &lt; 12
+                            )
+                            select [MonthName],[MonthNumber] from cte 
+                            Group by [MonthNumber],[MonthName]
+                            ORDER BY MonthNumber asc "></asp:SqlDataSource>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+</asp:Content>
+
+

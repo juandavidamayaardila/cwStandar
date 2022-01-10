@@ -1,0 +1,79 @@
+﻿Partial Class Filtros_FiltrosUsuariosUnaFecha
+    Inherits System.Web.UI.UserControl
+
+    Protected Sub Page_Load(sender As Object, e As EventArgs) Handles Me.Load
+
+        If IsPostBack = False Then
+
+            Dim codigoUsuario As String = Session("codigousuario").ToString.Trim
+            Dim tipoUsuario As String = Session("tipo").ToString.Trim
+
+            txtFechaInicial.Value = Convert.ToDateTime(Date.Now).ToString().Substring(0, 10)
+
+            dsgerenteRegional.SelectParameters("tipoUsuario").DefaultValue = tipoUsuario
+            dsgerenteRegional.SelectParameters("codUsuario").DefaultValue = codigoUsuario
+            ddlgerenteRegional.DataBind()
+
+            dsJefeVentas.SelectParameters("tipoUsuario").DefaultValue = tipoUsuario
+            dsJefeVentas.SelectParameters("codUsuario").DefaultValue = codigoUsuario
+            ddlJefeVentas.DataBind()
+
+            dsVendedores.SelectParameters("usuario").DefaultValue = codigoUsuario
+            dsVendedores.SelectParameters("tipoUsuario").DefaultValue = tipoUsuario
+            ddlVendedores.DataBind()
+        End If
+
+    End Sub
+
+    Protected Sub ddlgerenteRegional_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ddlgerenteRegional.SelectedIndexChanged
+        Dim codigoUsuario As String = Session("codigousuario").ToString.Trim
+        Dim tipoUsuario As String = Session("tipo").ToString.Trim
+
+        dsJefeVentas.SelectParameters("tipoUsuario").DefaultValue = tipoUsuario
+        dsJefeVentas.SelectParameters("codUsuario").DefaultValue = codigoUsuario
+        ddlJefeVentas.DataBind()
+    End Sub
+
+    Protected Sub ddlJefeVentas_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ddlJefeVentas.SelectedIndexChanged
+        Dim codigoUsuario As String = Session("codigousuario").ToString.Trim
+        Dim tipoUsuario As String = Session("tipo").ToString.Trim
+
+        dsVendedores.SelectParameters("usuario").DefaultValue = codigoUsuario
+        dsVendedores.SelectParameters("tipoUsuario").DefaultValue = tipoUsuario
+        ddlVendedores.DataBind()
+    End Sub
+    Public Function fecha() As String
+        Dim fechaI As String
+
+        fechaI = Format(Convert.ToDateTime(txtFechaInicial.Value), "yyyyMMdd")
+
+        Return fechaI
+    End Function
+
+    Public Property gerenteRegional() As String
+        Get
+            Return ddlgerenteRegional.SelectedValue
+        End Get
+        Set(value As String)
+            ddlgerenteRegional.SelectedValue = value
+        End Set
+    End Property
+
+    Public Property jefeVentas() As String
+        Get
+            Return ddlJefeVentas.SelectedValue
+        End Get
+        Set(value As String)
+            ddlJefeVentas.SelectedValue = value
+        End Set
+    End Property
+
+    Public Property vendedor() As String
+        Get
+            Return ddlVendedores.SelectedValue
+        End Get
+        Set(value As String)
+            ddlVendedores.SelectedValue = value
+        End Set
+    End Property
+End Class

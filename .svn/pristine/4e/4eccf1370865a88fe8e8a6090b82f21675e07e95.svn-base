@@ -1,0 +1,139 @@
+﻿using co.com.CeluwebEstandarFV.BussinesObject;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Text;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.HtmlControls;
+using System.Web.UI.WebControls;
+
+public partial class Reportes_ReporteHabeasData : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+
+    }
+
+    protected void btnFiltrar_Click(object sender, EventArgs e)
+    {
+        string codUsuario = Session["codigousuario"].ToString().Trim();
+        string tipo = Session["tipo"].ToString().Trim();
+
+        dsHabeasData.SelectParameters["fechaInicial"].DefaultValue = TCFiltrosNew.fechaInicial();
+        dsHabeasData.SelectParameters["fechaFinal"].DefaultValue = TCFiltrosNew.fechaFinal();
+        dsHabeasData.SelectParameters["usuario"].DefaultValue = codUsuario;
+        dsHabeasData.SelectParameters["tipoUsuario"].DefaultValue = tipo;
+        dsHabeasData.SelectParameters["gerenteRegional"].DefaultValue = TCFiltrosNew.gerenteRegional;
+        dsHabeasData.SelectParameters["jefeVenta"].DefaultValue = TCFiltrosNew.jefeVentas;
+        dsHabeasData.SelectParameters["vendedor"].DefaultValue = TCFiltrosNew.vendedor;
+
+        dsHabeasData.DataBind();
+        gvDatos.DataBind();
+    }
+
+    protected void btnExcel_Click(object sender, EventArgs e)
+    {
+        gvDatos.AllowPaging = false;
+        gvDatos.Columns[11].Visible = false;
+        gvDatos.DataBind();
+        gvDatos.AllowPaging = true;
+        gvDatos.Columns[11].Visible = true;
+        gvDatos.DataBind();
+    }
+
+    public void exportar(GridView gvDatos, string titulo)
+    {
+        StringBuilder sb = new StringBuilder();
+        StringWriter sw = new StringWriter(sb);
+        HtmlTextWriter htw = new HtmlTextWriter(sw);
+        Page pagina = new Page();
+        HtmlForm form = new HtmlForm();
+
+        gvDatos.EnableViewState = false;
+        pagina.EnableEventValidation = false;
+        pagina.DesignerInitialize();
+        pagina.Controls.Add(form);
+
+        form.Controls.Add(gvDatos);
+        pagina.RenderControl(htw);
+        Response.Clear();
+        Response.Buffer = true;
+        Response.ContentType = "application/vnd.ms-excel";
+        Response.AddHeader("Content-Disposition", "attachment;filename=" + titulo + ".xls");
+        Response.Charset = "UTF-8";
+
+        Response.ContentEncoding = Encoding.Default;
+        Response.Write(sb.ToString());
+        Response.End();
+    }
+
+    /// <summary>
+    /// SELECCIONAR FOTOGRAFIA
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected void gvDatos_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        string documento = "";
+        byte[] foto = null;
+        string cadenaconexion = ConfigurationManager.ConnectionStrings["CeluwebEstandarFV"].ToString();
+        GeneralBO generalBO = new GeneralBO(cadenaconexion);
+        bool resultado = false;
+
+        documento = gvDatos.SelectedValue.ToString();
+        foto = generalBO.fotoHabeasData(documento, resultado);
+
+        if (foto == null)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "", "swal('¡Advertencia!', '¡ No existe imagen !', 'warning')", true);
+        }
+        else
+        {
+            mpPanelResumen.Show();
+            String fotografia = Convert.ToBase64String(foto);
+            image.Src = "data:image/jpg;base64," + fotografia;
+        }
+    }
+
+    /// <summary>
+    /// BOTON PARA GENERAR ZIP DE FOTOS
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected void btnGenerarFotos_Click(object sender, System.EventArgs e)
+    {
+        string parametros = "?";
+        string codUsuario = Session["codigousuario"].ToString().Trim();
+        string tipo = Session["tipo"].ToString().Trim();
+        string fech = TCFiltrosNew.fechaInicial();
+        string fechF = TCFiltrosNew.fechaFinal();
+
+        gvDatos.AllowPaging = false;
+        gvDatos.AllowSorting = false;
+        parametros += "tipo=1";
+        parametros += "&codUsuarioWeb=" + codUsuario;
+        parametros += "&tipo=" + tipo;        
+        parametros += "&fechaI=" + fech;        
+        parametros += "&fechaF=" + fechF;
+
+        //'Se genera la url donde se desea hacer el llamado al PopUp
+        string url = "~/Reportes/ImagenesZip.aspx" + parametros;
+        string target = "_blank";
+        string windowFeatures = "menubar=0,scrollbars=1,width=300,height=100,top=10";
+
+        Page page = (Page)HttpContext.Current.Handler;
+        url = page.ResolveClientUrl(url);
+
+        string script = "window.open(\"{0}\", \"{1}\", \"{2}\");";
+        script = string.Format(script, url, target, windowFeatures);
+        ScriptManager.RegisterStartupScript(page, typeof(Page), "Redirect", script, true);
+        gvDatos.AllowPaging = true;
+        gvDatos.AllowSorting = false;
+    }
+    protected void bCloseResumen_Click(object sender, EventArgs e)
+    {
+        mpPanelResumen.Hide();
+    }
+}

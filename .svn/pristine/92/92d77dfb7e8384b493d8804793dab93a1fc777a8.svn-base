@@ -1,0 +1,229 @@
+﻿Imports co.com.CeluwebEstandarFV.BussinesObject
+Imports System.Windows.Forms
+
+Partial Class Administracion_AdminPresupuesto
+    Inherits System.Web.UI.Page
+
+    Public documento As String = ""
+    Private _doumento As Object
+    Public totalValor As Double = 0
+    Private cadenaConexion As String
+
+    Protected Sub Page_Load(sender As Object, e As EventArgs) Handles Me.Load
+        If Page.IsPostBack = False Then
+            Dim valueYear As String = Year(Now).ToString()
+            Dim valueMonth As String = Month(Now).ToString()
+
+            ddlYear.SelectedValue = valueYear
+            ddlMonth.SelectedValue = valueMonth
+        End If
+
+        dsUsuarios.DataBind()
+        gvUsuarios.DataBind()
+        cadenaConexion = ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString()
+    End Sub
+
+    Private Property doumento As Object
+        Get
+            Return _doumento
+        End Get
+        Set(value As Object)
+            _doumento = value
+        End Set
+    End Property
+    Protected Sub gvdetalle_RowDataBound(sender As Object, e As GridViewRowEventArgs)
+        If e.Row.RowType = DataControlRowType.DataRow Then
+            Dim total As String = e.Row.Cells(6).Text.ToString().Trim
+
+            If String.IsNullOrEmpty(total) = False Then
+                total = Replace(total, "$", "")
+                totalValor += Convert.ToDouble(total.Trim)
+            End If
+        End If
+        If e.Row.RowType = DataControlRowType.Footer Then
+            e.Row.Cells(4).Text = "TOTAL"
+            e.Row.Cells(6).Text = totalValor.ToString("$ 0,0") + ""
+        End If
+    End Sub
+
+    Protected Sub btnCrear_Click(sender As Object, e As EventArgs) Handles btnCrear.Click
+        Dim presupuestoBO As PresupuestoBO = New PresupuestoBO(cadenaconexion)
+        Dim year As String = ddlYear.SelectedValue
+        Dim month As String = ddlMonth.SelectedValue().Trim
+        Dim vendedor As String = ddlVendedores.SelectedValue().Trim
+        Dim dias As String = txtDia.Text.Trim
+        Dim existe As Integer = presupuestoBO.ExistePresupuesto(year, month, vendedor, dias)
+
+        gvdetalle.Columns(0).Visible = False
+
+        If existe = 1 Then
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡ Advertencia!', '¡ El vendedor ya tiene presupuesto !', 'warning')", True)
+        Else
+            Dim documento As String = year + month + vendedor + dias
+
+            If presupuestoBO.InsertarEncabezadoPresupuesto(year, month, vendedor, dias, documento) = False Then
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', '¡Erro al registrar la información!', 'danger')", True)
+            Else
+                ButtonAgregar.Visible = True
+                ButtonActualizar.Visible = False
+                ButtonCancelar.Visible = True
+                gvdetalle.Columns(1).Visible = False
+                txtValor.Text = ""
+                validatorLineAdd.Visible = True
+
+                dsDetalle.SelectParameters("documento").DefaultValue = documento
+                dsDetalle.DataBind()
+                gvdetalle.DataBind()
+                mpPanelResumen.Show()
+                Session("documento") = documento
+            End If
+        End If
+    End Sub
+
+    Protected Sub ButtonAgregar_Click(sender As Object, e As EventArgs) Handles ButtonAgregar.Click
+        Dim presupuestoBO As PresupuestoBO = New PresupuestoBO(cadenaConexion)
+        Dim documento As String = Session("documento").ToString
+        Dim linea As String = ddlLineaAdd.SelectedValue.Trim()
+        Dim valor As String = txtValor.Text.Trim
+
+        ButtonAgregar.Visible = True
+        ButtonActualizar.Visible = False
+        validatorLineAdd.Visible = True
+        gvdetalle.Columns(1).Visible = False
+        mpPanelResumen.Show()
+
+        presupuestoBO.InsertarDetallePresupuesto(documento, linea, valor)
+        dsDetalle.SelectParameters("documento").DefaultValue = documento
+        dsDetalle.DataBind()
+        gvdetalle.DataBind()
+    End Sub
+
+    Protected Sub ButtonAgregarPresupuesto_Click(sender As Object, e As EventArgs) Handles ButtonAgregarPresupuesto.Click
+        Dim presupuestoBO As PresupuestoBO = New PresupuestoBO(cadenaConexion)
+
+        If presupuestoBO.UpdEncabezadoPresupuesto(Session("documento").ToString, "1") Then
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Finalizado!', '¡ Información registrada correctamente !', 'success')", True)
+        Else
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', '¡Erro al registrar la información!', 'danger')", True)
+
+            ButtonAgregar.Visible = True
+            ButtonActualizar.Visible = False
+            gvdetalle.Columns(1).Visible = False
+            validatorLineAdd.Visible = False
+            mpPanelResumen.Show()
+        End If
+
+        dsUsuarios.DataBind()
+        gvUsuarios.DataBind()
+    End Sub
+
+    Protected Sub gvdetalle_RowCommand(sender As Object, e As GridViewCommandEventArgs)
+        If e.CommandName = "eliminar" Then
+            Dim codigo As String = e.CommandArgument.ToString().Trim()
+            Dim presupuestoBO As PresupuestoBO = New PresupuestoBO(cadenaConexion)
+
+            If presupuestoBO.DeleteItem(codigo) Then
+
+                presupuestoBO.UpdEncabezadoPresupuesto(Session("documento").ToString, "1")
+                dsDetalle.SelectParameters("documento").DefaultValue = Session("documento").ToString
+                dsDetalle.DataBind()
+                gvdetalle.DataBind()
+                mpPanelResumen.Show()
+            Else
+                dsDetalle.SelectParameters("documento").DefaultValue = Session("documento").ToString
+                dsDetalle.DataBind()
+                gvdetalle.DataBind()
+                mpPanelResumen.Show()
+            End If
+        End If
+
+        If e.CommandName = "editar" Then
+            Dim presupuestoBO As PresupuestoBO = New PresupuestoBO(cadenaConexion)
+            Dim rowIndex As Integer = Convert.ToInt32(e.CommandArgument)
+
+            ButtonActualizar.Visible = True
+            ButtonAgregar.Visible = False
+            ButtonCancelar.Visible = False
+            ButtonAgregarPresupuesto.Visible = False
+
+            'Reference the GridView Row.
+            Dim row As GridViewRow = gvdetalle.Rows(rowIndex)
+            'Access Cell values.
+            dsLineaAdd.DataBind()
+            ddlLineaAdd.DataBind()
+            Session("id") = row.Cells(2).Text
+            doumento = row.Cells(4).Text
+            Dim precio As Double = row.Cells(6).Text
+            precio.ToString("$ 0,0")
+            txtValor.Text = precio
+            ddlLineaAdd.SelectedValue = row.Cells(5).Text
+
+            mpPanelResumen.Show()
+        End If
+    End Sub
+
+    Protected Sub gvUsuarios_SelectedIndexChanged(sender As Object, e As EventArgs)
+        Dim name As String = gvUsuarios.SelectedRow.Cells(2).Text
+        Dim documento As String = ""
+
+        documento = gvUsuarios.SelectedValue.ToString()
+        Session("documento") = documento
+        txtValor.Text = ""
+        ButtonActualizar.Visible = False
+        ButtonAgregar.Visible = True
+        ButtonCancelar.Visible = False
+        ButtonAgregarPresupuesto.Visible = True
+        gvdetalle.Columns(1).Visible = True
+        validatorLineAdd.Visible = True
+        dsDetalle.SelectParameters("documento").DefaultValue = documento
+
+        dsDetalle.DataBind()
+        gvdetalle.DataBind()
+        mpPanelResumen.Show()
+    End Sub
+
+    Protected Sub ButtonActualizar_Click(sender As Object, e As EventArgs) Handles ButtonActualizar.Click
+        Dim presupuestoBO As PresupuestoBO = New PresupuestoBO(cadenaconexion)
+        Dim doc As String = Session("id")
+        Dim valor As String = txtValor.Text
+        Dim linea As String = ddlLineaAdd.SelectedValue
+
+        If presupuestoBO.UpdateRegistro(doc, valor, linea) Then
+            presupuestoBO.UpdEncabezadoPresupuesto(Session("documento").ToString, "1")
+            ButtonActualizar.Visible = True
+            ButtonAgregar.Visible = False
+            ButtonCancelar.Visible = False
+            ButtonAgregarPresupuesto.Visible = False
+
+            dsDetalle.SelectParameters("documento").DefaultValue = Session("documento").ToString
+            dsDetalle.DataBind()
+            gvdetalle.DataBind()
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Finalizado!', '¡ Información registrada correctamente !', 'success')", True)
+
+            ButtonActualizar.Visible = False
+            ButtonAgregar.Visible = True
+            ButtonCancelar.Visible = False
+            ButtonAgregarPresupuesto.Visible = True
+            gvdetalle.Columns(1).Visible = True
+
+            mpPanelResumen.Show()
+        Else
+            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "", "swal('¡Error!', '¡Erro al registrar la información!', 'danger')", True)
+        End If
+    End Sub
+
+    Protected Sub bCloseResumen_Click(sender As Object, e As EventArgs) Handles bCloseResumen.Click
+        mpPanelResumen.Hide()
+    End Sub
+
+    Protected Sub ButtonCancelar_Click(sender As Object, e As EventArgs) Handles ButtonCancelar.Click
+        Dim documento As String = Session("documento")
+        Dim presupuestoBO As PresupuestoBO = New PresupuestoBO(cadenaConexion)
+
+        If presupuestoBO.deletePresupuesto(documento) Then
+            validatorLineAdd.Visible = False
+            dsUsuarios.DataBind()
+            gvUsuarios.DataBind()
+        End If
+    End Sub
+End Class

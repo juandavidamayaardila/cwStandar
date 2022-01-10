@@ -1,0 +1,71 @@
+﻿Imports System.IO
+
+Partial Class Reportes_UnidadesXCliente
+    Inherits System.Web.UI.Page
+
+    Dim total As Double = 0
+    Dim cantidad As Integer = 0
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+
+        If IsPostBack = False Then
+            txtFechaInicial.Value = Convert.ToDateTime(Date.Now).ToString("dd/MM/yyy")
+            txtFechaFinal.Value = Convert.ToDateTime(Date.Now).ToString("dd/MM/yyy")
+        End If
+
+    End Sub
+
+    Protected Sub btnAceptar_Click(sender As Object, e As EventArgs)
+        cargarInforme()
+    End Sub
+
+    Protected Sub btnExportar_Click(sender As Object, e As EventArgs)
+
+        Dim sb As StringBuilder = New StringBuilder()
+        Dim sw As StringWriter = New StringWriter(sb)
+        Dim htw As HtmlTextWriter = New HtmlTextWriter(sw)
+        Dim pagina As Page = New Page
+        Dim form = New HtmlForm
+        gvInforme.EnableViewState = False
+        pagina.EnableEventValidation = False
+        pagina.DesignerInitialize()
+        pagina.Controls.Add(form)
+        form.Controls.Add(gvInforme)
+        pagina.RenderControl(htw)
+        Response.Clear()
+        Response.Buffer = True
+        Response.ContentType = "application/vnd.ms-excel"
+        Response.AddHeader("Content-Disposition", "attachment;filename=Informe Unidades por Cliente.xls")
+        Response.Charset = "UTF-8"
+
+        Response.ContentEncoding = Encoding.Default
+        Response.Write(sb.ToString())
+        Response.End()
+    End Sub
+
+    Public Sub cargarInforme()
+        SqlInforme.SelectParameters("FechaInicial").DefaultValue = Convert.ToDateTime(txtFechaInicial.Value).ToString("yyyyMMdd")
+        SqlInforme.SelectParameters("FechaFinal").DefaultValue = Convert.ToDateTime(txtFechaFinal.Value).ToString("yyyyMMdd")
+
+        gvInforme.DataBind()
+    End Sub
+
+    Protected Sub gvInforme_RowDataBound(sender As Object, e As GridViewRowEventArgs)
+        If (e.Row.RowType = DataControlRowType.DataRow) Then
+            Try
+                cantidad = cantidad + Convert.ToInt16(e.Row.Cells(6).Text.ToString())
+            Catch ex As Exception
+            End Try
+
+            Try
+                total = total + Convert.ToDouble(e.Row.Cells(7).Text.ToString().Replace("$", "").Replace(" ", ""))
+            Catch ex As Exception
+            End Try
+        End If
+
+        If (e.Row.RowType = DataControlRowType.Footer) Then
+            e.Row.Cells(5).Text = "Total"
+            e.Row.Cells(6).Text = cantidad.ToString()
+            e.Row.Cells(7).Text = total.ToString("$0,0")
+        End If
+    End Sub
+End Class

@@ -1,0 +1,110 @@
+﻿<%@ Page Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="AdminUsuarios.aspx.vb" Inherits="Administracion_AdminUsuarios" Title="CELUWEB" %>
+
+<%@ Register Assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="asp" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/gestion.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Administración de Usuarios"></asp:Label>
+                </small>
+            </h1>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Perfil de usuario"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class=" table-responsive">
+                        <table style="margin: auto;">
+                            <tr>
+                                <td rowspan="4">
+                                    <asp:Image ID="Image1" runat="server" ImageUrl="~/Styles/images/usuarioV.png" />
+                                </td>
+                                <td>
+                                    <asp:Label runat="server" Text="Nombre"></asp:Label>:
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txtNombre" runat="server" CssClass='form-control'></asp:TextBox>
+                                </td>
+                                <td>
+                                    <asp:RequiredFieldValidator ID="validator" runat="server" ControlToValidate="txtNombre"
+                                        ErrorMessage=" * "></asp:RequiredFieldValidator>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Usuario"></asp:Label>:
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txtUsuario" runat="server" CssClass='form-control'></asp:TextBox>
+                                </td>
+                                <td>
+                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="txtUsuario"
+                                        ErrorMessage=" * "></asp:RequiredFieldValidator>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Password:</label>
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txtPass" runat="server" CssClass='form-control'></asp:TextBox>
+                                </td>
+                                <td>
+                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator2" runat="server" ControlToValidate="txtPass"
+                                        ErrorMessage=" * "></asp:RequiredFieldValidator>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Tipo de usuario"></asp:Label>:
+                                </td>
+                                <td colspan="2">
+                                    <asp:DropDownList ID="ddlTipoUsuarios" runat="server" DataSourceID="dsTiposUsuarios" DataTextField="descripcion"
+                                        DataValueField="codigo" CssClass='form-control' Width="196px">
+                                    </asp:DropDownList>
+                                    <asp:SqlDataSource ID="dsTiposUsuarios" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                                        SelectCommand="TipoUsuarioDdlSelProc" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="text-align: center">
+                            <asp:Button ID="btnCrear" runat="server" Text="Crear" CssClass="btn btn-success" />
+                            <asp:Button ID="btnModificar" runat="server" CausesValidation="False" Text="Modificar"
+                                Visible="False" CssClass="btn btn-success" />
+                            <asp:Button ID="btnEliminar" runat="server" CausesValidation="False" Text="Eliminar"
+                                Visible="False" CssClass="btn btn-danger" />
+                            <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CausesValidation="False"
+                                CssClass="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Lista de usuarios"></asp:Label>
+                </div>
+                <div class="table-responsive filtros" style="overflow: auto; max-height: 300px;">
+                    <asp:GridView ID="gvUsuarios" runat="server" AllowPaging="True" AutoGenerateColumns="False" CssClass="gvHeader filtrar hide-column"
+                        DataSourceID="dsUsuarios" EnableModelValidation="True" DataKeyNames="usuario">
+                        <Columns>
+                            <asp:CommandField ShowSelectButton="True" HeaderText="Seleccionar" SelectImageUrl="~/Styles/icons/aceptar.png" ButtonType="Image" ItemStyle-HorizontalAlign="Center" />
+                            <asp:BoundField DataField="codigo" HeaderText="Código" InsertVisible="False" ReadOnly="True" SortExpression="codigo" ItemStyle-HorizontalAlign="Right" />
+                            <asp:BoundField DataField="nombre" HeaderText="Nombre" SortExpression="nombre" ItemStyle-HorizontalAlign="Left"></asp:BoundField>
+                            <asp:BoundField DataField="tipo" HeaderText="Código tipo" SortExpression="tipo" ItemStyle-HorizontalAlign="Right" />
+                            <asp:BoundField DataField="usuario" HeaderText="Usuario" SortExpression="usuario" ItemStyle-HorizontalAlign="Left" />
+                            <asp:BoundField DataField="password" HeaderText="Password" SortExpression="password" ItemStyle-HorizontalAlign="Right" />
+                            <asp:BoundField DataField="tipoUsuario" HeaderText="Tipo usuario" SortExpression="tipoUsuario" ItemStyle-HorizontalAlign="Left" />
+                        </Columns>
+                    </asp:GridView>
+                    <asp:SqlDataSource ID="dsUsuarios" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="UsuariosAdminSelProc" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
+                </div>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+</asp:Content>

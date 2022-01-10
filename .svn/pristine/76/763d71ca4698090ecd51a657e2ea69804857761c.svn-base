@@ -1,0 +1,144 @@
+﻿Imports co.com.CeluwebEstandarFV.BussinesObject
+Imports System.Web.Script.Serialization
+Imports System.IO
+Imports System.Drawing
+Imports System.Collections.Generic
+
+Partial Class Reportes_ConsolidadoVendedor
+    Inherits System.Web.UI.Page
+    Dim cadenaConexion As String
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        cadenaConexion = ConfigurationManager.ConnectionStrings("CeluwebEstandarFV").ToString()
+
+        If IsPostBack = False Then
+        End If
+    End Sub
+
+    Protected Sub btnAceptar_Click(sender As Object, e As EventArgs) Handles btnAceptar.Click
+        pedidosSup()
+        'graficarEfectividadPastel()
+    End Sub
+
+    Sub pedidosSup()
+        dsPedidosRealizados.SelectParameters("fechainicial").DefaultValue = filtros.fechaInicial
+        dsPedidosRealizados.SelectParameters("fechafinal").DefaultValue = filtros.fechaFinal
+        dsPedidosRealizados.SelectParameters("usuario").DefaultValue = Session("codigousuario").ToString.Trim
+        dsPedidosRealizados.SelectParameters("tipoUsuario").DefaultValue = Session("tipo")
+        dsPedidosRealizados.SelectParameters("gerenteRegional").DefaultValue = filtros.gerenteRegional
+        dsPedidosRealizados.SelectParameters("jefeVenta").DefaultValue = filtros.jefeVentas
+        dsPedidosRealizados.SelectParameters("vendedor").DefaultValue = filtros.vendedor
+
+        gvPedidosRealizados.DataBind()
+    End Sub
+
+    Protected Sub btnExportar_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnExportar.Click
+        exporta()
+    End Sub
+    Sub exporta()
+        Dim sb As StringBuilder = New StringBuilder()
+        Dim sw As StringWriter = New StringWriter(sb)
+        Dim htw As HtmlTextWriter = New HtmlTextWriter(sw)
+        Dim pagina As Page = New Page
+        Dim form As HtmlForm = New HtmlForm
+
+        gvPedidosRealizados.EnableViewState = False
+        pagina.EnableEventValidation = False
+        pagina.DesignerInitialize()
+        pagina.Controls.Add(form)
+        form.Controls.Add(gvPedidosRealizados)
+        pagina.RenderControl(htw)
+        Response.Clear()
+        Response.Buffer = True
+        Response.ContentType = "application/vnd.ms-excel"
+        Response.AddHeader("Content-Disposition", "attachment;filename=Pedidos Realizados.xls")
+        Response.Charset = "UTF-8"
+
+        Response.ContentEncoding = Encoding.Default
+        Response.Write(sb.ToString())
+        Response.End()
+    End Sub
+
+    Private GranTotalVisitasObjetivo As Double = 0
+    Private GranTotalVisitasRealizadas As Double = 0
+    Private GranTotalPedidosRealizados As Double = 0
+    Private GranTotalVisitasCompra As Double = 0
+    Private GranTotalEfectividadVisita As Double = 0
+    Private GranTotalNivelServicio As Double = 0
+    Private GranTotalVentaTotal As Double = 0
+    Private GranTotalPresupuesto As Double = 0
+    Private GranTotalCumplimiento As Double = 0
+
+    Protected Sub gvPedidosRealizados_RowDataBound(ByVal sender As Object, ByVal e As GridViewRowEventArgs)
+        Dim filas As Integer = gvPedidosRealizados.Rows.Count
+        Try
+            If (e.Row.RowType = DataControlRowType.DataRow) Then
+                Dim totalVisitasObjetivo As String = e.Row.Cells(4).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalVisitasRealizadas As String = e.Row.Cells(5).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalPedidosRealizados As String = e.Row.Cells(6).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalVisitasCompra As String = e.Row.Cells(7).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalEfectividadVisita As String = e.Row.Cells(8).Text.ToString.Trim.Replace("%", "").Replace(" ", "")
+                Dim totalNivelServicio As String = e.Row.Cells(9).Text.ToString.Trim.Replace("%", "").Replace(" ", "")
+                Dim totalVentaTotal As String = e.Row.Cells(10).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalPresupuesto As String = e.Row.Cells(11).Text.ToString.Trim.Replace("$", "").Replace(" ", "")
+                Dim totalCumplimiento As String = e.Row.Cells(12).Text.ToString.Trim.Replace("%", "").Replace(" ", "")
+
+                GranTotalVisitasObjetivo = (GranTotalVisitasObjetivo + Convert.ToDouble(totalVisitasObjetivo))
+                GranTotalVisitasRealizadas = (GranTotalVisitasRealizadas + Convert.ToDouble(totalVisitasRealizadas))
+                GranTotalPedidosRealizados = (GranTotalPedidosRealizados + Convert.ToDouble(totalPedidosRealizados))
+                GranTotalVisitasCompra = (GranTotalVisitasCompra + Convert.ToDouble(totalVisitasCompra))
+                GranTotalEfectividadVisita = (GranTotalEfectividadVisita + Convert.ToDouble(totalEfectividadVisita))
+                GranTotalNivelServicio = (GranTotalNivelServicio + Convert.ToDouble(totalNivelServicio))
+                GranTotalVentaTotal = (GranTotalVentaTotal + Convert.ToDouble(totalVentaTotal))
+                GranTotalPresupuesto = (GranTotalPresupuesto + Convert.ToDouble(totalPresupuesto))
+                GranTotalCumplimiento = (GranTotalCumplimiento + Convert.ToDouble(totalCumplimiento))
+            End If
+
+            If (e.Row.RowType = DataControlRowType.Footer) Then
+                e.Row.Cells(3).Text = "TOTAL"
+                e.Row.Cells(4).Text = GranTotalVisitasObjetivo.ToString()
+                e.Row.Cells(5).Text = GranTotalVisitasRealizadas.ToString()
+                e.Row.Cells(6).Text = GranTotalPedidosRealizados.ToString()
+                e.Row.Cells(7).Text = GranTotalVisitasCompra.ToString()
+                e.Row.Cells(8).Text = (GranTotalEfectividadVisita / filas / 100).ToString("0,0 %")
+                e.Row.Cells(9).Text = (GranTotalNivelServicio / filas / 100).ToString("0,0 %")
+                e.Row.Cells(10).Text = GranTotalVentaTotal.ToString("$ 0,0")
+                e.Row.Cells(11).Text = GranTotalPresupuesto.ToString("$ 0,0")
+                e.Row.Cells(12).Text = (GranTotalCumplimiento / filas / 100).ToString("0,0 %")
+            End If
+
+            For Each row As GridViewRow In gvPedidosRealizados.Rows
+                Dim nivelServicio As String = Convert.ToString(row.Cells(9).Text.ToString.Trim.Replace("%", "").Replace(" ", ""))
+                Dim efectividadVisitas As String = Convert.ToString(row.Cells(8).Text.ToString.Trim.Replace("%", "").Replace(" ", ""))
+                Dim cumplimiento As String = Convert.ToString(row.Cells(12).Text.ToString.Trim.Replace("%", "").Replace(" ", ""))
+
+                If nivelServicio <= 30 Then
+                    row.Cells(9).BackColor = ColorTranslator.FromHtml("#d9534f")
+                ElseIf nivelServicio > 30 And nivelServicio < 70 Then
+                    row.Cells(9).BackColor = ColorTranslator.FromHtml("#f0ad4e")
+                Else
+                    row.Cells(9).BackColor = ColorTranslator.FromHtml("#A9F5A9")
+                End If
+
+                If efectividadVisitas <= 30 Then
+                    row.Cells(8).BackColor = ColorTranslator.FromHtml("#d9534f")
+                ElseIf efectividadVisitas > 30 And efectividadVisitas < 70 Then
+                    row.Cells(8).BackColor = ColorTranslator.FromHtml("#f0ad4e")
+                Else
+                    row.Cells(8).BackColor = ColorTranslator.FromHtml("#A9F5A9")
+                End If
+
+                If cumplimiento <= 30 Then
+                    row.Cells(12).BackColor = ColorTranslator.FromHtml("#d9534f")
+                ElseIf efectividadVisitas > 30 And efectividadVisitas < 70 Then
+                    row.Cells(12).BackColor = ColorTranslator.FromHtml("#f0ad4e")
+                Else
+                    row.Cells(12).BackColor = ColorTranslator.FromHtml("#A9F5A9")
+                End If
+            Next
+
+        Catch ex As Exception
+            Dim resultado As String = ex.Message
+        End Try
+    End Sub
+
+End Class

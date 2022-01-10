@@ -1,0 +1,275 @@
+Imports System.Collections.Generic
+Imports System.Data.SqlClient
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports co.com.CeluwebEstandarFV.DataObject
+
+Namespace BussinesObject
+    Public Class PedidosVendedorBO
+        Dim _cadenaConexion As String
+        Dim comando As SqlCommand
+        Dim reader As SqlDataReader
+        Dim conexion As Conexion
+        Dim filas As Integer = -1
+
+
+        Sub New(ByVal cadenaConexion As String)
+            Me._cadenaConexion = cadenaConexion
+
+        End Sub
+
+        Function EliminarPedidoVendedor(ByVal documento As String) As Boolean
+
+            Dim registrado As Boolean = False
+            Dim consulta As String = "EliminarPedidosVendedorDelProc"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@documento", documento)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                registrado = True
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+                registrado = False
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return registrado
+
+        End Function
+
+        Function ConsultarGraficaTop5VendedorVenta(ByVal fechaIncial As String, ByVal fechaFinal As String, ByVal tipo As String, ByVal codusuario As String, ByVal gerenteRegional As String, ByVal supervisor As String, ByVal codVendedor As String) As List(Of List(Of String))
+
+            Dim grafica As List(Of List(Of String)) = New List(Of List(Of String))()
+            Dim vendedor As List(Of String) = New List(Of String)()
+            Dim cantidad As List(Of String) = New List(Of String)()
+            Dim consulta As String = "PedidosVendedorGraficaBarras"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@fechainicial", fechaIncial)
+                comando.Parameters.AddWithValue("@fechafinal", fechaFinal)
+                comando.Parameters.AddWithValue("@usuario", codusuario)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipo)
+                comando.Parameters.AddWithValue("@gerenteRegional", gerenteRegional)
+                comando.Parameters.AddWithValue("@jefeVenta", supervisor)
+                comando.Parameters.AddWithValue("@vendedor", codVendedor)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                While reader.Read()
+
+                    vendedor.Add(reader("vendedor"))
+                    cantidad.Add(reader("cantidad"))
+
+                End While
+
+                grafica.Add(vendedor)
+                grafica.Add(cantidad)
+
+                conexion.CloseConexion()
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return grafica
+
+        End Function
+
+        Function ConsultarGraficaPedidosAnuladosVendedor(ByVal fechaIncial As String, ByVal fechaFinal As String, ByVal tipo As String, ByVal codusuario As String, ByVal gerenteRegional As String, ByVal supervisor As String, ByVal codVendedor As String) As List(Of List(Of String))
+
+            Dim grafica As List(Of List(Of String)) = New List(Of List(Of String))()
+            Dim vendedor As List(Of String) = New List(Of String)()
+            Dim cantidad As List(Of String) = New List(Of String)()
+            Dim consulta As String = "PedidosAnuladosVendedorGraficaBarras"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@fechainicial", fechaIncial)
+                comando.Parameters.AddWithValue("@fechafinal", fechaFinal)
+                comando.Parameters.AddWithValue("@usuario", codusuario)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipo)
+                comando.Parameters.AddWithValue("@gerenteRegional", gerenteRegional)
+                comando.Parameters.AddWithValue("@Jefe de ventas", supervisor)
+                comando.Parameters.AddWithValue("@vendedor", codVendedor)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                While reader.Read()
+
+                    vendedor.Add(reader("vendedor"))
+                    cantidad.Add(reader("cantidad"))
+
+                End While
+
+                grafica.Add(vendedor)
+                grafica.Add(cantidad)
+
+                conexion.CloseConexion()
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return grafica
+
+        End Function
+
+        Function ingresarDetallePedidoWebTmp(ByVal usuario As String, ByVal tipoUsuario As Integer, ByVal codCliente As String, ByVal codProducto As String, ByVal cantidad As Integer) As Boolean
+
+            Dim ingreso As Boolean = False
+            comando = New SqlCommand()
+            conexion = New DataBase.Conexion(_cadenaConexion)
+
+            Try
+                comando.CommandText = "IngresaDetalleWebTmpInsProc"
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Connection = conexion.getConexionBD
+                comando.Parameters.AddWithValue("@usuario", usuario)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipoUsuario)
+                comando.Parameters.AddWithValue("@codCliente", codCliente)
+                comando.Parameters.AddWithValue("@codProducto", codProducto)
+                comando.Parameters.AddWithValue("@cantidad", cantidad)
+                conexion.openConexion()
+                ingreso = comando.ExecuteNonQuery() > 0
+                ingreso = True
+            Catch ex As Exception
+                Dim errorT As String = ex.Message
+
+            Finally
+                conexion.CloseConexion()
+
+            End Try
+            Return ingreso
+
+        End Function
+
+        Function RegistrarPedidoWeb(ByVal usuario As String, ByVal tipoUsuario As Integer, ByVal codCliente As String) As Boolean
+
+            Dim registrado As Boolean = False
+            Dim consulta As String = "IngresarPedidoWebInsProc"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@usuario", usuario)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipoUsuario)
+                comando.Parameters.AddWithValue("@codCliente", codCliente)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                registrado = True
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+                registrado = False
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return registrado
+
+        End Function
+
+        Function EliminarDetalleTmpWeb(ByVal usuario As String, ByVal tipoUsuario As Integer, ByVal codCliente As String) As Boolean
+            Dim registrado As Boolean = False
+            Dim consulta As String = "EliminarDetalleTmpWebDelProc"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@usuario", usuario)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipoUsuario)
+                comando.Parameters.AddWithValue("@codCliente", codCliente)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                registrado = True
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+                registrado = False
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return registrado
+
+        End Function
+
+        Function EliminarDetalleProductoTmpWeb(ByVal usuario As String, ByVal tipoUsuario As Integer, ByVal codCliente As String, ByVal codProducto As String) As Boolean
+            Dim registrado As Boolean = False
+            Dim consulta As String = "EliminarProductoDetalleTmpWebDelProc"
+
+            Try
+                comando = New SqlCommand()
+
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = consulta
+
+                comando.Parameters.AddWithValue("@usuario", usuario)
+                comando.Parameters.AddWithValue("@tipoUsuario", tipoUsuario)
+                comando.Parameters.AddWithValue("@codCliente", codCliente)
+                comando.Parameters.AddWithValue("@codProducto", codProducto)
+
+                conexion.openConexion()
+                reader = comando.ExecuteReader()
+
+                registrado = True
+
+            Catch ex As Exception
+                Dim errorEx = ex.Message
+                registrado = False
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return registrado
+
+        End Function
+    End Class
+
+End Namespace

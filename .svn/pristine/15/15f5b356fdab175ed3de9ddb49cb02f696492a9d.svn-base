@@ -1,0 +1,180 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="AdministracionCatalogo.aspx.vb" Inherits="Administracion_AdministracionCatalogo" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/gestion.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Administración de Catálogo"></asp:Label>
+                </small>
+            </h1>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Seleccionar imágenes"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive" style="text-align: center;">
+                        <input id="hfImagesPath" runat="server" type="hidden" name="Language" value="" clientidmode="Static">
+                        <input id="fuArchivo" runat="server" type="file" multiple="multiple">
+                        <asp:Button ID="btnEnviar" runat="server" CssClass="btn btn-success" Text="Cargar imágenes" />
+                    </div>
+                    <%-----------------------------%>
+                    <%-- Ventanas de información --%>
+                    <%-----------------------------%>
+                    <div id="MessageDanger" visible="false" runat="server" class="alert alert-danger alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <strong>
+                            <asp:Label runat="server" Text="Error al cargar el catálogo"></asp:Label></strong>
+                    </div>
+
+                    <div id="MessageSuccess" visible="false" runat="server" class="alert alert-success alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <strong>
+                            <asp:Label runat="server" Text="El catálogo ha sido cargado con éxito"></asp:Label></strong>
+                    </div>
+                    <%-----------------------------%>
+                    <%-----------------------------%>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Imágenes almacenadas"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class="col-sm-4">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <table style="margin: auto;">
+                                    <tr>
+                                        <td>
+                                            <asp:Label ID="lblLinea" runat="server" Text="Linea"></asp:Label>
+                                        </td>
+                                        <td>
+                                            <asp:DropDownList ID="ddlLineaVenta" runat="server" CssClass="form-control" DataSourceID="dsLineaProducto" DataTextField="linea" DataValueField="codLinea" Width="160px">
+                                            </asp:DropDownList>
+                                            <asp:SqlDataSource ID="dsLineaProducto" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="LineasProductosDdlSelProc" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
+                                        </td>
+                                        <%--</tr>
+                                    <tr>--%>
+                                        <td style="text-align: center;">
+                                            <asp:Button ID="btnBuscar" runat="server" Text="Buscar" CssClass="btn btn-primary" OnClick="btnBuscar_Click" />
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="table-responsive filtros" style="overflow: auto; max-height: 300px;">
+                                    <asp:GridView ID="gvProductosLineaCatalogo" runat="server" CssClass="gvHeader filtrar hide-column"
+                                        AutoGenerateColumns="False" DataSourceID="dsProductosLineaCatalogo" DataKeyNames="urlBorrar">
+                                        <Columns>
+                                            <asp:TemplateField HeaderText="Imagen" SortExpression="url" ItemStyle-HorizontalAlign="Center">
+                                                <ItemTemplate>
+                                                    <a>
+                                                        <asp:Image ID="Image3" runat="server" ImageUrl='<%# Eval("url")%>' CssClass="imagenCatalogoIcono" />
+                                                    </a>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+                                            <asp:BoundField DataField="codProducto" HeaderText="Código" SortExpression="codProducto" ItemStyle-HorizontalAlign="Right" />
+                                            <asp:BoundField DataField="producto" HeaderText="Producto" SortExpression="producto" ItemStyle-HorizontalAlign="Left" />
+                                            <asp:CommandField HeaderText="Eliminar" ShowSelectButton="True" ItemStyle-HorizontalAlign="Center" SelectImageUrl="~/Styles/icons/borrar.png" ButtonType="Image" />
+                                        </Columns>
+                                    </asp:GridView>
+                                    <asp:SqlDataSource ID="dsProductosLineaCatalogo" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ListaProductosLineaCatalogoSelProc" SelectCommandType="StoredProcedure">
+                                        <SelectParameters>
+                                            <asp:Parameter Name="linea" Type="String" />
+                                        </SelectParameters>
+                                    </asp:SqlDataSource>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="table-responsive" style="overflow: auto; max-height: 350px;">
+                                    <div class="row">
+                                        <div id="DivCatalogo" class="col-lg-12 blur pic">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ContentTemplate>
+        <Triggers>
+            <asp:PostBackTrigger ControlID="btnEnviar" />
+            <asp:PostBackTrigger ControlID="btnBuscar" />
+        </Triggers>
+    </asp:UpdatePanel>
+    <script>
+        $('input[type="file"]').prettyFile();
+
+    </script>
+    <script>
+        window.onload = function () {
+            CrearImagenes();
+        };
+
+        function CrearImagenes() {
+            var x = Math.floor((Math.random() * 6) + 1);
+            var catalogo = $("#hfImagesPath").val()
+            var TotalImagenes = catalogo.split('|');
+
+            //alert(TotalImagenes);
+            for (i = 0; i <= TotalImagenes.length - 2 ; i++) {
+                var url = "../Catalogo/" + TotalImagenes[i];
+
+                if (TotalImagenes[i].length = 0) {
+                    console.log("url vacia :" + url);
+                    return;
+                }
+                //creo el label para cargar descripcion
+                lbl = document.createElement('h5');
+                lbl.setAttribute("class", "label label-primary")
+
+                //adjunto el texto
+                lbl.innerHTML = TotalImagenes[i].toString();
+
+                //CREAR IMAGEN
+                var imagen = document.createElement("img");
+                //var ruta = prompt("Digita la ruta");
+                imagen.setAttribute("src", url);
+                imagen.setAttribute("width", 120);
+                imagen.setAttribute("height", 120);
+
+                var div = document.createElement("div");
+                div.setAttribute("class", "col-sm-6 col-md-3")
+                div.setAttribute("class", "hovereffect");
+                div.style.margin = "0px 0px 8px 0px";
+                div.setAttribute("max-width", 250);
+                div.setAttribute("max-height", 240);
+                div.setAttribute("style", "display:inline-block;");
+                div.setAttribute("style", "border: solid 0px #33445629;");
+                div.setAttribute("style", "padding-bottom: 5px");
+                div.setAttribute("style", "padding-top: 5px");
+                div.setAttribute("style", "padding-right: 5px");
+
+                //creo el div para la descripcion
+                var div2 = document.createElement("div");
+                //le do los estilos : arriba ,derecha,abajo,izquierda
+                div2.setAttribute("style", "padding: 10px 10px 5px 10px");
+                //añado el div a una variable
+                var contenedor = document.getElementById("DivCatalogo");
+                //añado el div que cree al contenedor
+                contenedor.appendChild(div);
+                //agrego la imagen al div principal
+                div.appendChild(imagen);
+                //le agrego el subDiv
+                div.appendChild(div2);
+                //agrego la descripcion al div secundario
+                div2.appendChild(lbl);
+
+                console.log("el total de imagenes es " + TotalImagenes[i]);
+            };
+        };
+    </script>
+</asp:Content>
+

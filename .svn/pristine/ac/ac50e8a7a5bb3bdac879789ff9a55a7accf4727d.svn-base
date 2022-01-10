@@ -1,0 +1,250 @@
+﻿<%@ Page Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="Recorrido.aspx.vb"
+    Inherits="Reportes_Recorrido" Title="CELUWEB" %>
+
+<%@ Register Assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="asp" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<%@ Register TagPrefix="CP" TagName="Filtros" Src="~/Filtros/FiltrosUsuarios.ascx" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/informes.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Informe de recorrido por vendedor"></asp:Label>
+                </small>
+            </h1>
+            <div class="panel panel-default">
+                <%--<div class="panel-heading">Lista Instructoress</div>--%>
+                <div class="panel-body">
+                    <div class=" table-responsive">
+                        <CP:Filtros ID="filtros" runat="server" />
+                        <div style="text-align: center">
+                            <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" />
+                            <asp:Button ID="btnExportar" runat="server" Text="Exportar" CssClass="btn btn-info" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Recorrido por vendedor"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <%--Div con la gráfica de barras--%>
+                        <div class="col-sm-6">
+                            <div id="container2">
+                            </div>
+                        </div>
+                        <%--Div con la gráfica de pastel--%>
+                        <div class="col-sm-6">
+                            <div id="container">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive filtros" style="overflow: auto; max-height: 400px;">
+                        <asp:GridView ID="gvRecorrido" runat="server"
+                            AutoGenerateColumns="False" CssClass="gvHeader filtrar hide-column" DataSourceID="dsListaRecorridoVendedor" DataKeyNames="DOCUMENTO"
+                            OnRowDataBound="gvRecorrido_RowDataBound" ShowFooter="True" EnableModelValidation="True">
+                            <Columns>
+                                <asp:BoundField DataField="FECHA" HeaderText="Fecha" SortExpression="FECHA" ItemStyle-HorizontalAlign="Center" ReadOnly="True" />
+                                <asp:BoundField DataField="CODVENDEDOR" HeaderText="Vendedor" SortExpression="CODVENDEDOR" ItemStyle-HorizontalAlign="Right" ReadOnly="True" />
+                                <asp:BoundField DataField="CODCLIENTE" HeaderText="Código" SortExpression="CODCLIENTE" ItemStyle-HorizontalAlign="Right" ReadOnly="True" />
+                                <asp:BoundField DataField="CLIENTE" HeaderText="Cliente" SortExpression="CLIENTE" ItemStyle-HorizontalAlign="Left" ReadOnly="True" />
+                                <asp:BoundField DataField="NOVEDAD" HeaderText="Novedad" SortExpression="NOVEDAD" ItemStyle-HorizontalAlign="Left" ReadOnly="True" />
+                                <asp:BoundField DataField="VALOR" HeaderText="Valor" SortExpression="VALOR" ItemStyle-HorizontalAlign="Right" ReadOnly="True" DataFormatString="{0:c}" />
+                                <asp:BoundField DataField="DOCUMENTO" HeaderText="Documento" SortExpression="DOCUMENTO" ItemStyle-HorizontalAlign="Right" ReadOnly="True" />
+                                <asp:CommandField HeaderText="Foto" ShowSelectButton="True" SelectImageUrl="~/Styles/icons/lista.png" ButtonType="Image" ItemStyle-HorizontalAlign="Center" />
+                            </Columns>
+                            <FooterStyle CssClass="gvHeader-footer" />
+                        </asp:GridView>
+                        <asp:SqlDataSource ID="dsListaRecorridoVendedor" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                            SelectCommand="ListaRecorridoVendedorSelProc" SelectCommandType="StoredProcedure">
+                            <SelectParameters>
+                                <asp:Parameter Name="fechainicial" Type="String" />
+                                <asp:Parameter Name="fechafinal" Type="String" />
+                                <asp:Parameter Name="usuario" Type="String" />
+                                <asp:Parameter Name="tipoUsuario" Type="String" />
+                                <asp:Parameter Name="gerenteRegional" Type="String" />
+                                <asp:Parameter Name="jefeVenta" Type="String" />
+                                <asp:Parameter Name="vendedor" Type="String" />
+                            </SelectParameters>
+                        </asp:SqlDataSource>
+                    </div>
+                </div>
+            </div>
+            <asp:Panel ID="panelFoto" runat="server" BackColor="White" CssClass="modalPopUp">
+                <asp:Button ID="bCloseFoto" runat="server" CssClass="buttonPopUp" />
+                <h2 style="text-align: center;">
+                    <asp:Label runat="server" Text="Foto"></asp:Label>
+                </h2>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class=" table-responsive">
+                            <img runat="server" id="image" style="height: 320px; width: 520px;" />
+                        </div>
+                    </div>
+                </div>
+            </asp:Panel>
+            <asp:HiddenField ID="hfShowFoto" runat="server" />
+            <asp:HiddenField ID="hfHideFoto" runat="server" />
+            <cc1:ModalPopupExtender ID="mpPanelFoto" runat="server" PopupControlID="panelFoto"
+                TargetControlID="hfShowFoto" BackgroundCssClass="FondoModal" CancelControlID="hfHideFoto">
+            </cc1:ModalPopupExtender>
+        </ContentTemplate>
+        <Triggers>
+            <asp:PostBackTrigger ControlID="btnExportar" />
+        </Triggers>
+    </asp:UpdatePanel>
+
+    <script type="text/javascript">
+        var _fechaInicial;
+        var _fechaFinal;
+        var _canal;
+        var _vendedor;
+
+        function iniciar(datos) {
+            console.log(datos);
+            graficaPastel(datos);
+            graficaBarra(datos);
+        }
+
+        function graficaPastel(datos) {
+
+            var motivos = datos[0];
+            var cantidades = [];
+
+            for (i = 0; i < datos[1].length; i++) {
+                cantidades.push(parseFloat(datos[1][i]));
+            }
+
+            var numerosFinales = [];
+
+            for (var i = 0; i < motivos.length; i++) {
+                var obj1 = [];
+                obj1.push(motivos[i]);
+                obj1.push(parseFloat(cantidades[i]));
+                numerosFinales.push(obj1);
+            };
+
+            $('#container').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Novedades'
+                },
+                exporting: {
+                    filename: 'Novedades Pedidos',//Define el nombre del archivo para exportar
+                    enabled: true,//Define si muestra o no el botón de exportar la gráfica generada
+                    sourceWidth: 1200,
+                    sourceHeight: 760,
+                    //scale: 2 (default)
+                    chartOptions:
+                    {
+                        subtitle: null
+                    }
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: false
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: 'Distribución de la novedad',
+                    data: numerosFinales
+
+                }]
+            });
+        }
+
+        function graficaBarra(datos) {
+            var series2 = [];
+
+            // metodo para crear las series como se muestra en el codigo arriba que esta comentado
+            for (var i = 0; i < datos[0].length; i++) {
+
+                var _name = datos[0][i]
+                var _data = [];
+
+                _data.push(parseFloat(datos[1][i]));
+
+                var itemSerie = {
+                    name: _name,
+                    data: _data
+                };
+
+                console.log('---------');
+                console.log(itemSerie);
+
+                series2.push(itemSerie);
+            }
+
+            console.log(series2);
+
+            $('#container2').highcharts({
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Novedades'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: '',
+                    crosshair: true,
+                    title: {
+                        text: 'Novedad'
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Cantidad'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.2f}' + '</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    },
+                    series: {
+                        borderWidth: 0,
+                        dataLabels: {
+                            // rotation: -90,
+                            enabled: true,
+                            format: '{point.y:.0f}'
+                        }
+                    }
+                },
+                series: series2
+            });
+        }
+    </script>
+</asp:Content>

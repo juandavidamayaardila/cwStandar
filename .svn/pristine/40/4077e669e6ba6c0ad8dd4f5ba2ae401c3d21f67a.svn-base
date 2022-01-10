@@ -1,0 +1,51 @@
+﻿Imports System.IO
+
+Partial Class Reportes_ClientesNuevos
+    Inherits System.Web.UI.Page
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+
+        If IsPostBack = False Then
+        End If
+    End Sub
+
+    Protected Sub btnAceptar_Click(sender As Object, e As EventArgs)
+        SqlInforme.SelectParameters("fechainicial").DefaultValue = filtros.fechaInicial
+        SqlInforme.SelectParameters("fechafinal").DefaultValue = filtros.fechaFinal
+        SqlInforme.SelectParameters("usuario").DefaultValue = Session("codigousuario").ToString.Trim
+        SqlInforme.SelectParameters("tipoUsuario").DefaultValue = Session("tipo")
+        SqlInforme.SelectParameters("gerenteRegional").DefaultValue = filtros.gerenteRegional
+        SqlInforme.SelectParameters("jefeVenta").DefaultValue = filtros.jefeVentas
+        SqlInforme.SelectParameters("vendedor").DefaultValue = filtros.vendedor
+
+        SqlInforme.DataBind()
+    End Sub
+
+    Protected Sub btnExportar_Click(sender As Object, e As EventArgs)
+        exporta()
+    End Sub
+
+    Sub exporta()
+        Dim sb As StringBuilder = New StringBuilder()
+        Dim sw As StringWriter = New StringWriter(sb)
+        Dim htw As HtmlTextWriter = New HtmlTextWriter(sw)
+        Dim pagina As Page = New Page
+        Dim form = New HtmlForm
+        gvInforme.EnableViewState = False
+        pagina.EnableEventValidation = False
+        pagina.DesignerInitialize()
+        pagina.Controls.Add(form)
+        form.Controls.Add(gvInforme)
+        pagina.RenderControl(htw)
+        Response.Clear()
+        Response.Buffer = True
+        Response.ContentType = "application/vnd.ms-excel"
+        Response.AddHeader("Content-Disposition", "attachment;filename=clientes nuevos.xls")
+        Response.Charset = "UTF-8"
+
+        Response.ContentEncoding = Encoding.Default
+        Response.Write(sb.ToString())
+        Response.End()
+    End Sub
+
+End Class

@@ -1,0 +1,137 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="AdminJerarquia2.aspx.vb" Inherits="Administracion_AdminJerarquia2" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/gestion.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Administración de Jerarquias"></asp:Label>
+                </small>
+            </h1>
+            <div class="col-sm-4  col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <asp:Label runat="server" Text="Seleccionar jerarquía"></asp:Label>
+                    </div>
+                    <div class="panel-body">
+                        <table style="margin: auto;">
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Asignar"></asp:Label></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: center;">
+                                        <asp:Button ID="btnJerarquiaGerJefe" runat="server" Text="Gerente Regional << >> Jefes de Ventas" CssClass="btn btn-primary" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Asignar"></asp:Label></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: center;">
+                                        <asp:Button ID="btnJerarquiaJefeVendedor" runat="server" Text="Jefes de Ventas << >> Vendedores" CssClass="btn btn-primary" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8 col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <asp:Label runat="server" Text="Asignación"></asp:Label>
+                    </div>
+                    <div class="panel-body">
+                        <table style="margin: auto;">
+                            <tr>
+                                <td>
+                                    <asp:Label runat="server" Text="Usuario"></asp:Label>:
+                                </td>
+                                <td>
+                                    <asp:DropDownList ID="ddlUsuario" runat="server" CssClass="form-control" AutoPostBack="True"
+                                        DataTextField="nombre" DataValueField="codigo" DataSourceID="dsUsuarioJerarquia">
+                                    </asp:DropDownList>
+                                    <asp:SqlDataSource ID="dsUsuarioJerarquia" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="UsuarioJerarquiaDdlSelProc" SelectCommandType="StoredProcedure">
+                                        <SelectParameters>
+                                            <asp:Parameter Name="jerarquiaUsuario" Type="Int32" />
+                                        </SelectParameters>
+                                    </asp:SqlDataSource>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="col-sm-6 col-xs-12">
+                            <h2 class="page-header" style="text-align: center">
+                                <asp:Label runat="server" Text="Asignados"></asp:Label>
+                            </h2>
+                            <div style="text-align: center">
+                                <asp:Button ID="btnQuitarAsignacion" runat="server" CssClass="btn btn-primary" Text="Quitar asignación" Enabled="false" />
+                            </div>
+                            <div class="table-responsive" style="overflow: auto; max-height: 300px;">
+                                <asp:GridView ID="gvAsignados" runat="server" AutoGenerateColumns="False" CssClass="gvHeader"
+                                    AllowPaging="True" DataSourceID="dsListaAsignados" EnableModelValidation="True">
+                                    <Columns>
+                                        <asp:TemplateField HeaderText="Asignar">
+                                            <HeaderTemplate>
+                                                <asp:CheckBox ID="chHeader" runat="server" onClick="javascript:selectAllGridView(this)" />
+                                            </HeaderTemplate>
+                                            <ItemTemplate>
+                                                <asp:CheckBox ID="cbMarcarAsignados" runat="server" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:BoundField DataField="codigo" HeaderText="Código" InsertVisible="False" ReadOnly="True" SortExpression="codigo" ItemStyle-HorizontalAlign="Left" />
+                                        <asp:BoundField DataField="nombre" HeaderText="Nombre" SortExpression="nombre" ItemStyle-HorizontalAlign="Left" />
+                                    </Columns>
+                                </asp:GridView>
+                                <asp:SqlDataSource ID="dsListaAsignados" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ListaJerarquiAsignadaSelProc" SelectCommandType="StoredProcedure">
+                                    <SelectParameters>
+                                        <asp:Parameter Name="codigo" Type="String" />
+                                        <asp:Parameter Name="tipoJerarquia" Type="Int32" />
+                                    </SelectParameters>
+                                </asp:SqlDataSource>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-xs-12">
+                            <h2 class="page-header" style="text-align: center">
+                                <asp:Label runat="server" Text="No asignados"></asp:Label>
+                            </h2>
+                            <div style="text-align: center">
+                                <asp:Button ID="btnAprobarAsignacion" runat="server" CssClass="btn btn-primary" Text="Aprobar asignaciones" Enabled="false" />
+                            </div>
+                            <div class="table-responsive" style="overflow: auto; max-height: 300px;">
+                                <asp:GridView ID="gvNoAsignados" runat="server" AutoGenerateColumns="False" AllowPaging="True" CssClass="gvHeader" DataSourceID="dsListaNoAsignados" EnableModelValidation="True">
+                                    <Columns>
+                                        <asp:TemplateField HeaderText="Asignar">
+                                            <HeaderTemplate>
+                                                <asp:CheckBox ID="chHeader" runat="server" onClick="javascript:selectAllGridView(this)" />
+                                            </HeaderTemplate>
+                                            <ItemTemplate>
+                                                <asp:CheckBox ID="cbMarcarNoAsignados" runat="server" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:BoundField DataField="codigo" HeaderText="Código" SortExpression="codigo" InsertVisible="False" ReadOnly="True" ItemStyle-HorizontalAlign="Left"></asp:BoundField>
+                                        <asp:BoundField DataField="nombre" HeaderText="Nombre" SortExpression="nombre" ItemStyle-HorizontalAlign="Left"></asp:BoundField>
+                                    </Columns>
+                                </asp:GridView>
+                                <asp:SqlDataSource ID="dsListaNoAsignados" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>" SelectCommand="ListaJerarquiNoAsignadaSelProc" SelectCommandType="StoredProcedure">
+                                    <SelectParameters>
+                                        <asp:Parameter Name="codigo" Type="String" />
+                                        <asp:Parameter Name="tipoJerarquia" Type="Int32" />
+                                    </SelectParameters>
+                                </asp:SqlDataSource>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+</asp:Content>

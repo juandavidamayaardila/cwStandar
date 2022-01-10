@@ -1,0 +1,77 @@
+﻿<%@ Register Assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="asp" %>
+
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+
+<%@ Page Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="ConsolidadoVendedor.aspx.vb"
+    Inherits="Reportes_ConsolidadoVendedor" Title="CELUWEB" %>
+
+<%@ Register TagPrefix="CP" TagName="Filtros" Src="~/Filtros/FiltrosUsuarios.ascx" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <asp:UpdatePanel ID="up1" runat="server">
+        <ContentTemplate>
+            <div class="panel-heading-icon">
+                <img src="../styles/icons/informes.png" />
+            </div>
+            <h1 class="page-header">
+                <small>
+                    <asp:Label runat="server" Text="Informe de consolidado por vendedor"></asp:Label>
+                </small>
+            </h1>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class=" table-responsive">
+                        <CP:Filtros ID="filtros" runat="server" />
+                        <div style="text-align: center">
+                            <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" />
+                            <asp:Button ID="btnExportar" runat="server" Text="Exportar" CssClass="btn btn-info" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <asp:Label runat="server" Text="Consolidado por vendedor"></asp:Label>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive filtros" style="overflow: auto; max-height: 400px;">
+                        <asp:GridView ID="gvPedidosRealizados" runat="server" AutoGenerateColumns="False" OnRowDataBound="gvPedidosRealizados_RowDataBound"
+                            ShowFooter="True" CssClass="gvHeader  filtrar hide-column" DataSourceID="dsPedidosRealizados" EnableModelValidation="True">
+                            <Columns>
+                                <asp:BoundField DataField="codVendedor" HeaderText="Código" SortExpression="codVendedor" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="vendedor" HeaderText="Vendedor" ReadOnly="True" SortExpression="vendedor" ItemStyle-HorizontalAlign="Left" />
+                                <asp:BoundField DataField="fechaIni" HeaderText="Fecha inicial" ReadOnly="True" SortExpression="fechaIni" ItemStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="fechaFin" HeaderText="Fecha final" ReadOnly="True" SortExpression="fechaFin" ItemStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="visitasObjetivo" HeaderText="Visitas objetivo" ReadOnly="True" SortExpression="visitasObjetivo" ItemStyle-HorizontalAlign="right" />
+                                <asp:BoundField DataField="visitasRealizadas" HeaderText="Visitas realizadas" ReadOnly="True" SortExpression="visitasRealizadas" ItemStyle-HorizontalAlign="right" />
+                                <asp:BoundField DataField="pedidosrealizados" HeaderText="Pedidos realizados" ReadOnly="True" SortExpression="pedidosrealizados" ItemStyle-HorizontalAlign="right" />
+                                <asp:BoundField DataField="visitasCompra" HeaderText="Visitas compra" ReadOnly="True" SortExpression="visitasCompra" ItemStyle-HorizontalAlign="right" />
+                                <asp:BoundField DataField="efectividadVisita" HeaderText="Efectividad visitas" ReadOnly="True" SortExpression="efectividadVisita" ItemStyle-HorizontalAlign="right" DataFormatString="{0:p}" />
+                                <asp:BoundField DataField="nivelServicio" HeaderText="Nivel del servicio" ReadOnly="True" SortExpression="nivelServicio" ItemStyle-HorizontalAlign="right" DataFormatString="{0:p}" />
+                                <asp:BoundField DataField="ventaTotal" HeaderText="Venta total" ReadOnly="True" SortExpression="ventaTotal" ItemStyle-HorizontalAlign="right" DataFormatString="{0:c}" />
+                                <asp:BoundField DataField="presupuesto" HeaderText="Presupuesto" ReadOnly="True" SortExpression="presupuesto" ItemStyle-HorizontalAlign="right" DataFormatString="{0:c}" />
+                                <asp:BoundField DataField="cumplimiento" HeaderText="Cumplimiento" ReadOnly="True" SortExpression="cumplimiento" ItemStyle-HorizontalAlign="right" DataFormatString="{0:p}" />
+                            </Columns>
+                            <FooterStyle CssClass="gvHeader-footer" />
+                        </asp:GridView>
+                    </div>
+                    <asp:SqlDataSource ID="dsPedidosRealizados" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                        SelectCommand="ListaConsolidadoVendedorSelProc" SelectCommandType="StoredProcedure">
+                        <SelectParameters>
+                            <asp:Parameter Name="fechainicial" Type="String" />
+                            <asp:Parameter Name="fechafinal" Type="String" />
+                            <asp:Parameter Name="usuario" Type="String" />
+                            <asp:Parameter Name="tipoUsuario" Type="String" />
+                            <asp:Parameter Name="gerenteRegional" Type="String" />
+                            <asp:Parameter Name="jefeVenta" Type="String" />
+                            <asp:Parameter Name="vendedor" Type="String" />
+                        </SelectParameters>
+                    </asp:SqlDataSource>
+                </div>
+            </div>
+        </ContentTemplate>
+        <Triggers>
+            <asp:PostBackTrigger ControlID="btnExportar" />
+        </Triggers>
+    </asp:UpdatePanel>
+</asp:Content>

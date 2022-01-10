@@ -1,0 +1,99 @@
+﻿Imports System.Data.SqlClient
+Imports co.com.CeluwebEstandarFV.DataBase
+
+Namespace BussinesObject
+
+    Public Class MaestrosBO
+        Dim cadenaConexion As String
+        Dim dbConn As SqlConnection
+        Dim comando As SqlCommand
+        Dim reader As SqlDataReader
+        Dim conexion As Conexion
+
+        Sub New(ByVal cadenaConexion As String)
+            Me.cadenaConexion = cadenaConexion
+        End Sub
+
+        Public Function insertTable(table As DataTable, nombreTabla As String) As String
+            dbConn = New SqlConnection(cadenaConexion)
+
+            Try
+                Dim bcCopyTrans As New SqlBulkCopy(dbConn _
+                     .ConnectionString,
+                     SqlBulkCopyOptions.TableLock)
+                bcCopyTrans.BatchSize = table.Rows.Count
+                bcCopyTrans.DestinationTableName = nombreTabla
+
+                dbConn.Open()
+                bcCopyTrans.WriteToServer(table)
+                dbConn.Close()
+                bcCopyTrans.Close()
+            Catch ex As Exception
+                Return ex.Message
+            End Try
+
+            Return "OK"
+
+        End Function
+
+        Function deleteTemporal(tabla As String) As Boolean
+            'Dim cmdTxt = "delete " + tabla + " where usuario = @usuario"
+            Dim cmdTxt = "delete " + tabla
+
+            Try
+                comando = New SqlCommand()
+                conexion = New DataBase.Conexion(cadenaConexion)
+                comando.Connection = conexion.getConexionBD()
+
+                comando.CommandType = CommandType.Text
+                comando.CommandText = cmdTxt
+                'comando.Parameters.AddWithValue("@usuario", usuario)
+                conexion.openConexion()
+
+                comando.ExecuteNonQuery()
+
+                Return True
+            Catch ex As Exception
+                'respuesta = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return False
+        End Function
+
+
+        ''' <summary>
+        ''' pasar datos de las tablas de integracion a la tabla produccion
+        ''' </summary>
+        ''' <param name="table"></param>
+        ''' <param name="bodega"></param>
+        ''' ''' <param name="vendedores"></param> lista de vendedores separados por "-", solo para maestra de clientes
+        ''' <returns></returns>
+        Function copiarInformacion(tabla As String) As String
+            Dim cmdTxt = "sp_fin_maestras"
+            Dim respuesta As String = "OK"
+
+            Try
+                comando = New SqlCommand()
+                conexion = New DataBase.Conexion(cadenaConexion)
+                comando.Connection = conexion.getConexionBD()
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = cmdTxt
+                comando.Parameters.AddWithValue("@tabla", tabla)
+                'comando.Parameters.AddWithValue("@usuario", usuario)
+
+                conexion.openConexion()
+                comando.ExecuteNonQuery()
+            Catch ex As Exception
+                respuesta = ex.Message
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+            Return respuesta
+        End Function
+
+    End Class
+
+End Namespace

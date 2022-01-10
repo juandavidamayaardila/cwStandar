@@ -1,0 +1,71 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/menu.master" AutoEventWireup="false" CodeFile="Vendedores.aspx.vb" Inherits="Maestros_Vendedores" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    <div class="panel-heading-icon">
+        <img src="../styles/icons/carga_maestra.png" />
+    </div>
+    <h1 class="page-header">
+        <small>
+            <asp:Label runat="server" Text="Maestra de vendedores"></asp:Label>
+        </small>
+    </h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Cargar vendedores
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive" style="text-align: center;">
+                <asp:FileUpload ID="archivo" runat="server" />
+                <asp:Button ID="btnEnviar" runat="server" Text="Subir Archivo" CssClass="btn btn-success" OnClick="btnEnviar_Click" ValidationGroup="ciudad" />
+                <asp:Button ID="btnEjemploMaestra" runat="server" Text="Archivo Ejemplo" CssClass="btn btn-info" OnClick="btnEjemploMaestra_Click" />
+                <%-----------------------------%>
+                <%-- Ventanas de información --%>
+                <%-----------------------------%>
+                <div id="MessageDanger" visible="false" runat="server" class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>
+                        <asp:Label runat="server" ID="lblDanger"></asp:Label></strong>
+                </div>
+                <div id="MessageWarning" visible="false" runat="server" class="alert alert-warning alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>
+                        <asp:Label runat="server" ID="lblWarning"></asp:Label></strong>
+                </div>
+                <div id="MessageSuccess" visible="false" runat="server" class="alert alert-success alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>
+                        <asp:Label runat="server" ID="lblSuccess"></asp:Label></strong>
+                </div>
+                <%-----------------------------%>
+                <%-----------------------------%>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">Lista de vendedores</div>
+        <div class="panel-body">
+            <div class="table-responsive filtros" style="overflow: auto; max-height: 300px;">
+                <asp:GridView ID="gvInforme" runat="server" CssClass="gvHeader filtrar hide-column" AutoGenerateColumns="False"
+                    DataSourceID="SqlInforme" DataKeyNames="Bodega,Codigo" AllowPaging="true" PageSize="150">
+                    <Columns>
+                        <asp:BoundField DataField="filas" HeaderText="#" ReadOnly="True" SortExpression="filas" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Bodega" HeaderText="Bodega" ReadOnly="True" SortExpression="Bodega" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Codigo" HeaderText="Código" ReadOnly="True" SortExpression="Codigo" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Nombre" HeaderText="Nombre" SortExpression="Nombre" ItemStyle-HorizontalAlign="Left" />
+                        <asp:BoundField DataField="Regional" HeaderText="Regional" SortExpression="Regional" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="TipoVenta" HeaderText="Tipo venta" SortExpression="TipoVenta" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Consecutivo" HeaderText="Consecutivo" SortExpression="Consecutivo" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="CEDULA" HeaderText="Cédula" SortExpression="CEDULA" ItemStyle-HorizontalAlign="Right" />
+                        <asp:BoundField DataField="Prefijo" HeaderText="Prefijo" SortExpression="Prefijo" ItemStyle-HorizontalAlign="Right" />
+                    </Columns>
+                </asp:GridView>
+                <asp:SqlDataSource ID="SqlInforme" runat="server" ConnectionString="<%$ ConnectionStrings:CeluwebEstandarFV %>"
+                    SelectCommand="ListaVendedoresMaestrasSelProc" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('input[type="file"]').prettyFile();
+    </script>
+</asp:Content>
+

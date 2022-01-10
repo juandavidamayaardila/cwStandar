@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "co.com.CeluwebEstandarFV", "co.com.CeluwebEstandarFV\co.com.CeluwebEstandarFV.vbproj", "{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "CeluwebEstandarFV", "http://localhost:63667", "{D67D0731-60C1-4587-9FD0-36149E891F7A}"
+	ProjectSection(WebsiteProperties) = preProject
+		UseIISExpress = "true"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
+		ProjectReferences = "{6c0f3928-3f62-4ae4-bf81-fcaba8cecbad}|co.com.CeluwebEstandarFV.dll;"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_63667"
+		Debug.AspNetCompiler.PhysicalPath = "CeluwebEstandarFV\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_63667\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_63667"
+		Release.AspNetCompiler.PhysicalPath = "CeluwebEstandarFV\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_63667\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		SlnRelativePath = "CeluwebEstandarFV\"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|.NET = Debug|.NET
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Release|.NET = Release|.NET
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Debug|.NET.ActiveCfg = Debug|Any CPU
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Release|.NET.ActiveCfg = Release|Any CPU
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6C0F3928-3F62-4AE4-BF81-FCABA8CECBAD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Debug|.NET.ActiveCfg = Debug|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Release|.NET.ActiveCfg = Debug|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Release|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D67D0731-60C1-4587-9FD0-36149E891F7A}.Release|Mixed Platforms.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		VisualSVNWorkingCopyRoot = .
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,109 @@
+﻿
+Imports System.Collections.Generic
+Imports System.Data.SqlClient
+Imports co.com.CeluwebEstandarFV.DataBase
+Imports co.com.CeluwebEstandarFV.DataObject
+
+Namespace BussinesObject
+    Public Class RuteroBO
+
+        Dim _cadenaConexion As String
+        Dim comando As SqlCommand
+        Dim reader As SqlDataReader
+        Dim conexion As Conexion
+        Dim filas As Integer = -1
+
+        Sub New(ByVal cadenaConexion As String)
+            Me._cadenaConexion = cadenaConexion
+        End Sub
+
+        Public Function asignarRutero(ByVal usuario As String, ByVal vendedor As String, ByVal listaClientes As List(Of List(Of String))) As Boolean
+
+            Dim respuesta As Boolean = False
+
+            Dim cmdTxt = "InsertClienteRutero"
+
+            Try
+                comando = New SqlCommand()
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD()
+
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = cmdTxt
+                conexion.openConexion()
+
+                For Each cliente As List(Of String) In listaClientes
+
+                    comando.Parameters.Clear()
+
+                    comando.Parameters.AddWithValue("@codVendedor", vendedor)
+                    comando.Parameters.AddWithValue("@usuario", usuario)
+                    comando.Parameters.AddWithValue("@codCliente", cliente(0))
+
+                    comando.Parameters.AddWithValue("@lunes", cliente(1))
+                    comando.Parameters.AddWithValue("@martes", cliente(2))
+                    comando.Parameters.AddWithValue("@miercoles", cliente(3))
+                    comando.Parameters.AddWithValue("@jueves", cliente(4))
+                    comando.Parameters.AddWithValue("@viernes", cliente(5))
+                    comando.Parameters.AddWithValue("@sabado", cliente(6))
+                    comando.Parameters.AddWithValue("@domingo", cliente(7))
+                    comando.Parameters.AddWithValue("@frecuencia", cliente(8))
+
+                    comando.ExecuteNonQuery()
+
+                Next
+
+                respuesta = True
+
+            Catch ex As Exception
+                Return False
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+
+            Return respuesta
+
+        End Function
+
+        Function ordernarRutero(usuario As String, listaRutero As List(Of List(Of String))) As Boolean
+            Dim respuesta As Boolean = False
+
+            Dim cmdTxt = "UpdateOrdenRutero"
+
+            Try
+                comando = New SqlCommand()
+                conexion = New DataBase.Conexion(_cadenaConexion)
+                comando.Connection = conexion.getConexionBD()
+
+                comando.CommandType = CommandType.StoredProcedure
+                comando.CommandText = cmdTxt
+                conexion.openConexion()
+
+                For Each item As List(Of String) In listaRutero
+
+                    comando.Parameters.Clear()
+
+                    comando.Parameters.AddWithValue("@usuario", usuario)
+                    comando.Parameters.AddWithValue("@idRutero", item(0))
+                    comando.Parameters.AddWithValue("@orden", item(1))
+
+                    comando.ExecuteNonQuery()
+
+                Next
+
+                respuesta = True
+
+            Catch ex As Exception
+                Return False
+            Finally
+                conexion.CloseConexion()
+            End Try
+
+
+            Return respuesta
+        End Function
+
+
+    End Class
+End Namespace
