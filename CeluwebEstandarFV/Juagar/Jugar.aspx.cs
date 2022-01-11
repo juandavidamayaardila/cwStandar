@@ -206,17 +206,23 @@ public partial class Juagar_Jugar : System.Web.UI.Page
         {
             if (ronda.validarGanador())
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "", "swal('¡Felicidades!', '¡  " + jugador + " has ganado el juego!', 'success')", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "", "swal('¡Felicidades!', '¡  " + jugador + " HAS GANADO EL JUEGO!', 'success')", true);
+                lblPuntajeActual.Text = "Su puntaje es: 0";
+                lblNivel.Text = "Nivel actual: 1";
                 registrarGanador(1);
+
             }
             else
+            {
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "", "swal('¡Felicidades!', '¡ Respuesta Correcta!', 'success')", true);
 
-            lblPuntajeActual.Text = "Su puntaje es: " + ronda.aumentarPuntaje().ToString();
-            ronda.aumentarCategoria();
-            lblNivel.Text = "Nivel actual: " + ronda.categoria;
-            Limpiar();
-            ContinuarJuego();
+                lblPuntajeActual.Text = "Su puntaje es: " + ronda.aumentarPuntaje().ToString();
+                ronda.aumentarCategoria();
+                lblNivel.Text = "Nivel actual: " + ronda.categoria;
+                Limpiar();
+                ContinuarJuego();
+            }
+
         }
         else
         {
