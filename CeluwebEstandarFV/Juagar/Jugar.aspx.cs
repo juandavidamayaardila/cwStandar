@@ -214,7 +214,7 @@ public partial class Juagar_Jugar : System.Web.UI.Page
 
             lblPuntajeActual.Text = "Su puntaje es: " + ronda.aumentarPuntaje().ToString();
             ronda.aumentarCategoria();
-            lblNivel.Text = "Nivel: " + ronda.categoria;
+            lblNivel.Text = "Nivel actual: " + ronda.categoria;
             Limpiar();
             ContinuarJuego();
         }

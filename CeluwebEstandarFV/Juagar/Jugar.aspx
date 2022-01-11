@@ -26,7 +26,7 @@
                             <table style="margin: auto;">
                                 <tr>
                                     <td>
-                                        <asp:Label runat="server" Text="Ingrese el nombre del jugador"></asp:Label>
+                                        <asp:Label runat="server" Text="Ingrese el nombre del jugador "></asp:Label>
                                     </td>
                                     <td>
                                         <asp:TextBox runat="server" ID="txtJugador"></asp:TextBox>
@@ -42,7 +42,7 @@
             </asp:Panel>
             <asp:Panel class="panel panel-default" runat="server" ID="pnPreguntas" Visible="false">
                 <div class="panel-heading" style="text-align: center">
-                    <asp:Label runat="server" Text="Pregunta"></asp:Label>
+                    <asp:Label runat="server" Text="Información"></asp:Label>
                 </div>
                 <div class="panel-body" style="padding-left: 30%">
                     <div>
@@ -92,7 +92,7 @@
                             <asp:Label Font-Size="XX-Large" runat="server" ID="lblPuntajeActual" Text="Su puntaje es: 0"></asp:Label>
                         </div>
                         <div class="col-sm-6" id="div2" runat="server" style="text-align:center">
-                            <asp:Label Font-Size="XX-Large" runat="server" ID="lblNivel" Text="Nivel: 1"></asp:Label>
+                            <asp:Label Font-Size="XX-Large" runat="server" ID="lblNivel" Text="Nivel actual: 1"></asp:Label>
                         </div>
                     </div>
                 </div>
