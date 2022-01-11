@@ -214,6 +214,7 @@ public partial class Juagar_Jugar : System.Web.UI.Page
 
             lblPuntajeActual.Text = "Su puntaje es: " + ronda.aumentarPuntaje().ToString();
             ronda.aumentarCategoria();
+            lblNivel.Text = "Nivel: " + ronda.categoria;
             Limpiar();
             ContinuarJuego();
         }
@@ -221,6 +222,7 @@ public partial class Juagar_Jugar : System.Web.UI.Page
         {
             ScriptManager.RegisterStartupScript(this, this.GetType(), "", "swal('¡Error!', '¡Jugador Eliminado !', 'error')", true);
             lblPuntajeActual.Text = "";
+            lblNivel.Text = "";
             registrarGanador(0);
             Limpiar();
             ReiniciarJuego();
@@ -320,6 +322,7 @@ public partial class Juagar_Jugar : System.Web.UI.Page
     {
         ScriptManager.RegisterStartupScript(this, this.GetType(), "", "swal('¡Felicidades!', '¡ Jugador retirado voluntariamente su puntaje es " + ronda.puntaje.ToString() + "', 'success')", true);
         lblPuntajeActual.Text = "";
+        lblNivel.Text = "";
         registrarGanador(0);
     }
 }

@@ -68,7 +68,7 @@
                             <asp:Label Font-Size="Medium" runat="server" ID="lblRespuesta4" Text=""></asp:Label>
                         </div>
                     </div>
-                   
+
                 </div>
             </asp:Panel>
             <div class="panel panel-default">
@@ -87,13 +87,14 @@
                     <asp:Label runat="server" Text="Puntaje"></asp:Label>
                 </div>
                 <div class="panel-body">
-                    <table>
-                        <tr>
-                            <td>
-                                <asp:Label Font-Size="XX-Large" runat="server" ID="lblPuntajeActual" Text="Su puntaje es: 0"></asp:Label>
-                            </td>
-                        </tr>
-                    </table>
+                    <div class="row">
+                        <div class="col-sm-6" id="div1" runat="server">
+                            <asp:Label Font-Size="XX-Large" runat="server" ID="lblPuntajeActual" Text="Su puntaje es: 0"></asp:Label>
+                        </div>
+                        <div class="col-sm-6" id="div2" runat="server" style="text-align:center">
+                            <asp:Label Font-Size="XX-Large" runat="server" ID="lblNivel" Text="Nivel: 1"></asp:Label>
+                        </div>
+                    </div>
                 </div>
             </asp:Panel>
             <br />
